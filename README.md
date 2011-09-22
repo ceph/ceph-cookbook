@@ -1,0 +1,1 @@
+These are incomplete, use with caution.  They have pulled from a working configuration using Debian.  They will require work for other distributions.  They also assume your package manager (apt-get, etc) are already configured for a ceph repository.

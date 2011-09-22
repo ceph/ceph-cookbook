@@ -1,0 +1,34 @@
+Hostname <%= node[:fqdn] %>
+LoadPlugin syslog
+<Plugin syslog>
+        LogLevel "info"
+</Plugin>
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin entropy
+LoadPlugin interface
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin network
+LoadPlugin processes
+LoadPlugin swap
+LoadPlugin uptime
+LoadPlugin users
+<Plugin "logfile">
+		LogLevel "debug"
+		file "/var/log/collectd.log"
+		Timestamp true
+</Plugin>
+<Plugin network>
+        Server "<%= node[:collectd][:sink] %>" "25826"
+        TimeToLive 128
+        MaxPacketSize 1024
+        CacheFlush 1800
+</Plugin>
+<Plugin rrdtool>
+        DataDir "/var/lib/collectd/rrd"
+</Plugin>
+
+Include "/etc/collectd/filters.conf"
+Include "/etc/collectd/thresholds.conf"

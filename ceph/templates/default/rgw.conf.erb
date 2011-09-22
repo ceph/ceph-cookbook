@@ -1,0 +1,40 @@
+FastCgiExternalServer /var/www/s3gw.fcgi -socket /var/run/ceph/radosgw.client.rgw-<%= node[:hostname] %>
+
+LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_combined
+LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_debug
+
+<VirtualHost <%= @ceph_rgw_addr %>>
+  ServerName <%= @ceph_api_fqdn %>
+  ServerAdmin <%= @ceph_admin_email %>
+  DocumentRoot /var/www/
+
+  RewriteEngine On
+  RewriteRule             ^/(.*) /s3gw.fcgi?params=$1&%{QUERY_STRING} [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+
+  <IfModule mod_fastcgi.c>
+    <Directory /var/www/>
+      Options +ExecCGI
+      AllowOverride All
+      SetHandler fastcgi-script
+      Order allow,deny
+      Allow from all
+      AuthBasicAuthoritative Off
+    </Directory>
+  </IfModule>
+
+  SetEnv RGW_DNS_NAME "<%= @ceph_api_fqdn %>"
+  SetEnv RGW_LOG_LEVEL 20
+  SetEnv RGW_PRINT_CONTINUE "yes"
+  SetEnv RGW_OPENSTACK_URL "http://<%= @ceph_api_fqdn %>"
+  SetEnv RGW_OPENSTACK_URL_PREFIX "swift"
+  SetEnv RGW_REMOTE_ADDR_PARAM "X-Forwarded-For"
+
+  SetEnv CEPH_ARGS "-n client.rgw-<%= node[:hostname] %>"
+  SetEnv RGW_SHOULD_LOG "yes"
+
+  AllowEncodedSlashes On
+
+  ErrorLog /var/log/apache2/error.log
+  CustomLog /var/log/apache2/sssrgw-access.log proxy_combined
+  ServerSignature Off
+</VirtualHost>
