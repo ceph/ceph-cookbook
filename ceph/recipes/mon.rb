@@ -28,7 +28,6 @@ packages = %w{
 
 packages.each do |pkg|
     package pkg do
-        version = node['ceph']['version']
         action :upgrade
     end 
 end
