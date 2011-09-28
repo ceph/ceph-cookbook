@@ -1,0 +1,19 @@
+[global]
+	auth supported = cephx
+	keyring = /etc/ceph/$name.keyring
+
+	# this will be used by all clients to discover the mons to
+	# talk to; this way we don't need to have separate [mon.foo]
+	# sections, and come up with names for the mons just to be
+	# able to list their addresses
+ 	mon host = <%= @mon_addresses.join(', ') %>
+
+[mon]
+	mon data = /srv/mon.$id
+
+[mds]
+
+[osd]
+	osd data = /srv/osd.$id
+	osd journal = /srv/osd.$id.journal
+	osd journal size = 1000

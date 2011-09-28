@@ -1,14 +1,7 @@
 # this recipe creates a single-node monitor cluster
 
 include_recipe "ceph::mon"
-
-template '/etc/ceph/ceph.conf' do
-  source 'ceph.conf.single_mon.erb'
-  variables(
-    :mon_address => "#{node[:ipaddress]}:6789"
-  )
-  mode '0644'
-end
+include_recipe "ceph::conf"
 
 execute 'create client.admin keyring' do
   creates '/etc/ceph/client.admin.keyring'
