@@ -40,14 +40,10 @@ Ceph Rados Gateway
 * node[:ceph][:radosgw][:admin_email]
 * node[:ceph][:radosgw][:rgw_addr]
 
-Ceph Balancer
--------------
-
-*
-*
-
 TEMPLATES
 =========
+
+
 
 USAGE
 =====
@@ -99,15 +95,6 @@ Ceph Rados Gateway nodes should use the ceph::radosgw recipe
 Includes:
 
 * ceph::rados-rest
-
-Ceph Balancer
--------------
-
-Ceph Balancer nodes should use the ceph::balancer recipe
-
-Includes:
-
-* 
 
 LICENSE AND AUTHORS
 ===================
