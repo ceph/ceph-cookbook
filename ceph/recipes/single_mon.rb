@@ -68,3 +68,12 @@ ceph auth add \
     allow command mon getmap"
 EOH
 end
+
+ruby_block "save osd bootstrap key in node attributes" do
+  block do
+    key = %x[cauthtool --name client.bootstrap-osd -p /etc/ceph/client.bootstrap-osd.keyring]
+    raise 'cauthtool failed' unless $?.exitstatus == 0
+    node.override['ceph_bootstrap_osd_key'] = key
+    node.save
+  end
+end
