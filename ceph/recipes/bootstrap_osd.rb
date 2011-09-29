@@ -102,4 +102,5 @@ ruby_block 'bootstrap a single (fake) osd' do
       ceph_bootstrap_osd('/srv/ceph-fake-osd')
     end
   end
+  notifies :start, "service[ceph-osd-all]"
 end

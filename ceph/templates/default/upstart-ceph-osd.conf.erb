@@ -1,0 +1,15 @@
+description "Ceph OSD"
+
+stop on runlevel [!2345]
+
+respawn
+respawn limit 5 30
+
+pre-start script
+    test -x /usr/bin/cosd || { stop; exit 0; }
+    test -d "/srv/osd.$OSD_ID" || { stop; exit 0; }
+end script
+
+instance $OSD_ID
+
+exec /usr/bin/cosd -i "$OSD_ID" -f
