@@ -36,10 +36,7 @@ rm -rf /srv/mon.single.temp
 touch /srv/mon.single/done
 EOH
   creates '/srv/mon.single/done'
-end
-
-service 'ceph' do
-  action [:enable, :start]
+  notifies :start, "service[ceph-mon-all]"
 end
 
 

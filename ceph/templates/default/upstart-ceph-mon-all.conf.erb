@@ -1,0 +1,15 @@
+description "Ceph MON (start all instances)"
+
+start on filesystem
+
+task
+
+script
+  find /srv/ -mindepth 1 -maxdepth 1 -regextype posix-egrep -regex '.*/mon\.[0-9]+' -printf '%P\n' \
+  | while read f; do
+    if [ -e "/srv/$f/done" ]; then
+        id="${f##mon.}"
+    	start ceph-mon MON_ID="$id"
+    fi
+  done
+end script

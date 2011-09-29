@@ -1,0 +1,15 @@
+description "Ceph MON"
+
+stop on runlevel [!2345]
+
+respawn
+respawn limit 5 30
+
+pre-start script
+    test -x /usr/bin/cmon || { stop; exit 0; }
+    test -d "/srv/mon.$MON_ID" || { stop; exit 0; }
+end script
+
+instance $MON_ID
+
+exec /usr/bin/cmon -i "$MON_ID" -f
