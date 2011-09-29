@@ -18,6 +18,7 @@ cauthtool \
   /etc/ceph/client.admin.keyring.tmp
 mv /etc/ceph/client.admin.keyring.tmp /etc/ceph/client.admin.keyring
 EOH
+  creates '/etc/ceph/client.admin.keyring'
 end
 
 execute 'ceph-mon mkfs' do
@@ -32,7 +33,9 @@ monmaptool --create --clobber --add single #{node[:ipaddress]} /srv/mon.single.t
 osdmaptool --clobber --createsimple 1 /srv/mon.single.temp/osdmap
 cmon --mkfs -i single --monmap=/srv/mon.single.temp/monmap --osdmap=/srv/mon.single.temp/osdmap --keyring=/srv/mon.single.temp/keyring
 rm -rf /srv/mon.single.temp
+touch /srv/mon.single/done
 EOH
+  creates '/srv/mon.single/done'
 end
 
 service 'ceph' do
@@ -53,6 +56,7 @@ cauthtool \
   /etc/ceph/client.bootstrap-osd.keyring.tmp
 mv /etc/ceph/client.bootstrap-osd.keyring.tmp /etc/ceph/client.bootstrap-osd.keyring
 EOH
+  creates '/etc/ceph/client.bootstrap-osd.keyring'
 end
 
 execute 'authorize client.bootstrap-osd' do
