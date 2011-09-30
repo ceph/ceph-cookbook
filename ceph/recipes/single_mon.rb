@@ -56,6 +56,8 @@ EOH
   creates '/etc/ceph/client.bootstrap-osd.keyring'
 end
 
+# TODO this will hang if you stopped ceph-mon manually; use some chef
+# hook mechanism to ensure ceph is running?
 execute 'authorize client.bootstrap-osd' do
   command <<-EOH
 set -e

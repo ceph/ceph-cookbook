@@ -101,6 +101,7 @@ ruby_block 'bootstrap a single (fake) osd' do
       }
     end
 
+    # TODO use not_if, http://wiki.opscode.com/display/chef/Resources
     if not ::File.exists?('/srv/ceph-fake-osd/done')
       ceph_bootstrap_osd('/srv/ceph-fake-osd')
     end
