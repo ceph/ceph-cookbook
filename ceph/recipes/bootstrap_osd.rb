@@ -79,14 +79,17 @@ ruby_block 'bootstrap a single (fake) osd' do
                     'mon', 'allow rwx'
                     )
 
-        subprocess(
-                    'ceph',
-                    '--name', 'client.bootstrap-osd',
-                    '--keyring', bootstrap_path,
-                    'osd', 'crush', 'add', osd_id, 'osd.'+osd_id,
-                    '1',
-                    'domain=root'
-                    )
+        # TODO default crushmap already contains osd_id=='0'
+        if osd_id != '0'
+          subprocess(
+                     'ceph',
+                     '--name', 'client.bootstrap-osd',
+                     '--keyring', bootstrap_path,
+                     'osd', 'crush', 'add', osd_id, 'osd.'+osd_id,
+                     '1',
+                     'domain=root'
+                     )
+        end
 
       ensure
         bootstrap_file.close
