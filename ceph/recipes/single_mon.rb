@@ -7,7 +7,7 @@ execute 'create client.admin keyring' do
   creates '/etc/ceph/client.admin.keyring'
   command <<-EOH
 set -e
-cauthtool \
+ceph-authtool \
   --create-keyring \
   --gen-key \
   --name=client.admin \
@@ -27,11 +27,11 @@ execute 'ceph-mon mkfs' do
   command <<-EOH
 set -e
 install -d -m0700 /srv/mon.single.temp
-cauthtool --create-keyring --gen-key --name=mon. /srv/mon.single.temp/keyring
+ceph-authtool --create-keyring --gen-key --name=mon. /srv/mon.single.temp/keyring
 cat /etc/ceph/client.admin.keyring >>/srv/mon.single.temp/keyring
 monmaptool --create --clobber --add single #{node[:ipaddress]} /srv/mon.single.temp/monmap
 osdmaptool --clobber --createsimple 1 /srv/mon.single.temp/osdmap
-cmon --mkfs -i single --monmap=/srv/mon.single.temp/monmap --osdmap=/srv/mon.single.temp/osdmap --keyring=/srv/mon.single.temp/keyring
+ceph-mon --mkfs -i single --monmap=/srv/mon.single.temp/monmap --osdmap=/srv/mon.single.temp/osdmap --keyring=/srv/mon.single.temp/keyring
 rm -rf /srv/mon.single.temp
 touch /srv/mon.single/done
 EOH
@@ -46,7 +46,7 @@ execute 'create client.bootstrap-osd keyring' do
   creates '/etc/ceph/client.bootstrap-osd.keyring'
   command <<-EOH
 set -e
-cauthtool \
+ceph-authtool \
   --create-keyring \
   --gen-key \
   --name=client.bootstrap-osd \
@@ -74,8 +74,8 @@ end
 
 ruby_block "save osd bootstrap key in node attributes" do
   block do
-    key = %x[cauthtool --name client.bootstrap-osd -p /etc/ceph/client.bootstrap-osd.keyring]
-    raise 'cauthtool failed' unless $?.exitstatus == 0
+    key = %x[ceph-authtool --name client.bootstrap-osd -p /etc/ceph/client.bootstrap-osd.keyring]
+    raise 'ceph-authtool failed' unless $?.exitstatus == 0
     node.override['ceph_bootstrap_osd_key'] = key
     node.save
   end

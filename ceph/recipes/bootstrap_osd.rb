@@ -35,7 +35,7 @@ ruby_block 'bootstrap a single (fake) osd' do
         begin
 
           # TODO don't put the key in "ps" output
-          subprocess 'cauthtool', bootstrap_path, '--name=client.bootstrap-osd', '--add-key='+bootstrap_key
+          subprocess 'ceph-authtool', bootstrap_path, '--name=client.bootstrap-osd', '--add-key='+bootstrap_key
 
           osd_id = ''
           Open4::spawn(
@@ -62,7 +62,7 @@ ruby_block 'bootstrap a single (fake) osd' do
 
           # TODO fix this to have sane paths
           File.symlink(path, '/srv/osd.'+osd_id)
-          subprocess 'cosd', '--mkfs', '--mkkey', '-i', osd_id, '--monmap', monmap.path
+          subprocess 'ceph-osd', '--mkfs', '--mkkey', '-i', osd_id, '--monmap', monmap.path
 
         ensure
           monmap.close

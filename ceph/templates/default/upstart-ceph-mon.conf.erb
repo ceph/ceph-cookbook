@@ -6,10 +6,10 @@ respawn
 respawn limit 5 30
 
 pre-start script
-    test -x /usr/bin/cmon || { stop; exit 0; }
+    test -x /usr/bin/ceph-mon || { stop; exit 0; }
     test -d "/srv/mon.$MON_ID" || { stop; exit 0; }
 end script
 
 instance $MON_ID
 
-exec /usr/bin/cmon -i "$MON_ID" -f
+exec /usr/bin/ceph-mon -i "$MON_ID" -f
