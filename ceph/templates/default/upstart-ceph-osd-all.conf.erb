@@ -9,7 +9,22 @@ script
   | while read f; do
     if [ -e "/srv/$f/done" ]; then
         id="${f##osd.}"
-    	start ceph-osd OSD_ID="$id"
+
+	# upstart start(8) fails if the job is already running
+	# https://bugs.launchpad.net/upstart/+bug/878322
+	status ceph-osd OSD_ID="$id" \
+	| {
+	  set -e
+	  read name goal_status rest
+	  case "$goal_status" in
+	    start/*)
+	      # no action needed
+	      ;;
+	    *)
+	      start ceph-osd OSD_ID="$id"
+	      ;;
+	  esac
+	}
     fi
   done
 end script
