@@ -13,19 +13,9 @@ script
 
 	# upstart start(8) fails if the job is already running
 	# https://bugs.launchpad.net/upstart/+bug/878322
-	status ceph-mon MON_ID="$id" \
-	| {
-	  set -e
-	  read name goal_status rest
-	  case "$goal_status" in
-	    start/*)
-	      # no action needed
-	      ;;
-	    *)
-	      start ceph-mon MON_ID="$id"
-	      ;;
-	  esac
-	}
+	if ! status ceph-mon MON_ID="$id" | grep -qE '^[^ ]+( \([^)]\))? start/'; then
+ 	  start ceph-mon MON_ID="$id"
+	fi
     fi
   done
 end script
