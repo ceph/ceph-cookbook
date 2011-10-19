@@ -22,8 +22,8 @@ include_recipe "ceph::rados-rest"
 
 packages = %w{ 
 	librbd1
-	ceph-client-tools
-	ceph-client-tools-dbg
+	ceph-common
+	ceph-common-dbg
 }
 
 packages.each do |pkg|
