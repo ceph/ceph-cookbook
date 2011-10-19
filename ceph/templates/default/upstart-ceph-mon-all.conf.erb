@@ -13,7 +13,10 @@ script
 
 	# upstart start(8) fails if the job is already running
 	# https://bugs.launchpad.net/upstart/+bug/878322
-	if ! status ceph-mon MON_ID="$id" | grep -qE '^[^ ]+( \([^)]\))? start/'; then
+
+	# also cannot ask for status of instance that isn't running at
+	# that time, so just list all and filter that
+	if initctl list|mawk '$1=="ceph-mon" && $2=="(" INSTANCE ")" && $3~/start\// { exit 1 }' INSTANCE="$id"; then
  	  start ceph-mon MON_ID="$id"
 	fi
     fi
