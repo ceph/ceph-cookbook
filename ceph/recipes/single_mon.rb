@@ -21,6 +21,12 @@ EOH
   creates '/etc/ceph/client.admin.keyring'
 end
 
+if is_crowbar?
+  ipaddress = Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address
+else
+  ipaddress = node[:ipaddress]
+end
+
 execute 'ceph-mon mkfs' do
   # TODO this is probably not an atomic test
   creates '/srv/mon.single/magic'
@@ -29,7 +35,7 @@ set -e
 install -d -m0700 /srv/mon.single.temp
 ceph-authtool --create-keyring --gen-key --name=mon. /srv/mon.single.temp/keyring
 cat /etc/ceph/client.admin.keyring >>/srv/mon.single.temp/keyring
-monmaptool --create --clobber --add single #{node[:ipaddress]} /srv/mon.single.temp/monmap
+monmaptool --create --clobber --add single #{ipaddress} /srv/mon.single.temp/monmap
 osdmaptool --clobber --createsimple 1 /srv/mon.single.temp/osdmap
 ceph-mon --mkfs -i single --monmap=/srv/mon.single.temp/monmap --osdmap=/srv/mon.single.temp/osdmap --keyring=/srv/mon.single.temp/keyring
 rm -rf /srv/mon.single.temp
