@@ -5,6 +5,8 @@
 include_recipe "ceph::osd"
 include_recipe "ceph::conf"
 
+gem_package "open4"
+
 ruby_block 'bootstrap a single (fake) osd' do
   block do
     require 'tempfile'
