@@ -20,7 +20,7 @@ ruby_block 'bootstrap a single (fake) osd' do
       if is_crowbar?
         nodes = search(:node, "recipes:ceph\\:\\:single_mon AND ceph_config_environment:#{node[:ceph][:config][:environment]} AND ceph_bootstrap_osd_key:*")
       else
-        nodes = search(:node, 'recipes:ceph\:\:single_mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*')
+        nodes = search(:node, "recipes:ceph\\:\\:single_mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
       end
       raise 'No single_mon found.' if nodes.length < 1
       raise 'Too many single_mons found.' if nodes.length > 1
