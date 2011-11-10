@@ -10,6 +10,7 @@ gem_package "open4"
 ruby_block 'bootstrap a single (fake) osd' do
   block do
     require 'tempfile'
+    require 'rubygems'
     require 'open4'
 
     def subprocess(*args)
