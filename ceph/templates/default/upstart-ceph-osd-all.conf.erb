@@ -16,7 +16,7 @@ script
 	# also cannot ask for status of instance that isn't running at
 	# that time, so just list all and filter that
 	if initctl list|mawk '$1=="ceph-osd" && $2=="(" INSTANCE ")" && $3~/start\// { exit 1 }' INSTANCE="$id"; then
-	  start ceph-osd OSD_ID="$id"
+	  start ceph-osd id="$id"
 	fi
     fi
   done

@@ -7,9 +7,9 @@ respawn limit 5 30
 
 pre-start script
     test -x /usr/bin/ceph-osd || { stop; exit 0; }
-    test -d "/srv/osd.$OSD_ID" || { stop; exit 0; }
+    test -d "/srv/osd.$id" || { stop; exit 0; }
 end script
 
-instance $OSD_ID
+instance $id
 
-exec /usr/bin/ceph-osd -i "$OSD_ID" -f
+exec /usr/bin/ceph-osd -i "$id" -f
