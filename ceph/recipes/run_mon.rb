@@ -1,10 +1,10 @@
-template "/etc/init/ceph-mon.conf" do
-  source "upstart-ceph-mon.conf.erb"
+cookbook_file "/etc/init/ceph-mon.conf" do
+  source "upstart-ceph-mon.conf"
   mode 0644
 end
 
-template "/etc/init/ceph-mon-all.conf" do
-  source "upstart-ceph-mon-all.conf.erb"
+cookbook_file "/etc/init/ceph-mon-all.conf" do
+  source "upstart-ceph-mon-all.conf"
   mode 0644
   notifies :restart, "service[ceph-mon-all]", :delayed
 end

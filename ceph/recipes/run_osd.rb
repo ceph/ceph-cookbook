@@ -1,10 +1,10 @@
-template "/etc/init/ceph-osd.conf" do
-  source "upstart-ceph-osd.conf.erb"
+cookbook_file "/etc/init/ceph-osd.conf" do
+  source "upstart-ceph-osd.conf"
   mode 0644
 end
 
-template "/etc/init/ceph-osd-all.conf" do
-  source "upstart-ceph-osd-all.conf.erb"
+cookbook_file "/etc/init/ceph-osd-all.conf" do
+  source "upstart-ceph-osd-all.conf"
   mode 0644
   notifies :restart, "service[ceph-osd-all]", :delayed
 end
