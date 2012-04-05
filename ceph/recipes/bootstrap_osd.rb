@@ -11,6 +11,7 @@ ruby_block 'bootstrap a single (fake) osd' do
   block do
     require 'tempfile'
     require 'rubygems'
+    # TODO this fails on the first run, works on retry
     require 'open4'
 
     def subprocess(*args)
