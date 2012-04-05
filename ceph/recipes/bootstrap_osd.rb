@@ -20,7 +20,7 @@ ruby_block 'bootstrap a single (fake) osd' do
 
     def get_bootstrap_osd_key()
       if is_crowbar?
-        nodes = search(:node, "role:ceph-mon AND ceph_config_environment:#{node[:ceph][:config][:environment]} AND ceph_bootstrap_osd_key:*")
+        nodes = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']} AND ceph_bootstrap_osd_key:*")
       else
         nodes = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
       end

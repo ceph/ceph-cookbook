@@ -24,7 +24,7 @@ end
 if is_crowbar?
   ipaddress = Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address
 else
-  ipaddress = node[:ipaddress]
+  ipaddress = node['ipaddress']
 end
 
 execute 'ceph-mon mkfs' do

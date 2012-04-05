@@ -63,11 +63,11 @@ template "/etc/apache2/sites-available/rgw.conf" do
 	owner "root"
 	group "root"
 	variables(
-		:ceph_api_fqdn => node[:ceph][:api_fqdn],
-		:ceph_admin_email => node[:ceph][:admin_email],
-		:ceph_rgw_addr => node[:ceph][:rgw_addr]
+		:ceph_api_fqdn => node['ceph']['api_fqdn'],
+		:ceph_admin_email => node['ceph']['admin_email'],
+		:ceph_rgw_addr => node['ceph']['rgw_addr']
 	)
-	if ::File.exists?("#{node[:apache][:dir]}/sites-enabled/rgw.conf")
+	if ::File.exists?("#{node['apache']['dir']}/sites-enabled/rgw.conf")
 		notifies :restart, "service[apache2]"
 	end
 end
