@@ -1,6 +1,6 @@
 [global]
 	auth supported = cephx
-	keyring = /etc/ceph/$name.keyring
+	keyring = /etc/ceph/$cluster.$name.keyring
 
 	# this will be used by all clients to discover the mons to
 	# talk to; this way we don't need to have separate [mon.foo]

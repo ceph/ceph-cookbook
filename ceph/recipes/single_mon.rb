@@ -4,7 +4,7 @@ include_recipe "ceph::mon"
 include_recipe "ceph::conf"
 
 execute 'create client.admin keyring' do
-  creates '/etc/ceph/client.admin.keyring'
+  creates '/etc/ceph/ceph.client.admin.keyring'
   command <<-EOH
 set -e
 ceph-authtool \
@@ -15,10 +15,10 @@ ceph-authtool \
   --cap mon 'allow *' \
   --cap osd 'allow *' \
   --cap mds 'allow' \
-  /etc/ceph/client.admin.keyring.tmp
-mv /etc/ceph/client.admin.keyring.tmp /etc/ceph/client.admin.keyring
+  /etc/ceph/ceph.client.admin.keyring.tmp
+mv /etc/ceph/ceph.client.admin.keyring.tmp /etc/ceph/ceph.client.admin.keyring
 EOH
-  creates '/etc/ceph/client.admin.keyring'
+  creates '/etc/ceph/ceph.client.admin.keyring'
 end
 
 if is_crowbar?
@@ -32,7 +32,7 @@ execute 'ceph-mon mkfs' do
 set -e
 install -d -m0700 /var/lib/ceph/tmp/mon-single.temp
 ceph-authtool --create-keyring --gen-key --name=mon. /var/lib/ceph/tmp/mon-single.temp/keyring
-cat /etc/ceph/client.admin.keyring >>/var/lib/ceph/tmp/mon-single.temp/keyring
+cat /etc/ceph/ceph.client.admin.keyring >>/var/lib/ceph/tmp/mon-single.temp/keyring
 monmaptool --create --clobber --add single #{ipaddress} /var/lib/ceph/tmp/mon-single.temp/monmap
 osdmaptool --clobber --createsimple 1 /var/lib/ceph/tmp/mon-single.temp/osdmap
 ceph-mon --mkfs -i single --monmap=/var/lib/ceph/tmp/mon-single.temp/monmap --osdmap=/var/lib/ceph/tmp/mon-single.temp/osdmap --keyring=/var/lib/ceph/tmp/mon-single.temp/keyring
