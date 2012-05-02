@@ -39,6 +39,7 @@ ceph-mon --mkfs -i single --monmap=/var/lib/ceph/tmp/mon-single.temp/monmap --os
 rm -rf /var/lib/ceph/tmp/mon-single.temp
 touch /var/lib/ceph/mon/ceph-single/done
 EOH
+  # TODO built-in done-ness flag for ceph-mon?
   creates '/var/lib/ceph/mon/ceph-single/done'
   notifies :start, "service[ceph-mon-all]", :immediately
 end
