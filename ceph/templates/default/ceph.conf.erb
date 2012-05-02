@@ -9,11 +9,11 @@
  	mon host = <%= @mon_addresses.join(', ') %>
 
 [mon]
-	mon data = /srv/mon.$id
+	keyring = /var/lib/ceph/mon/$cluster-$id/keyring
 
 [mds]
+	keyring = /var/lib/ceph/mds/$cluster-$id/keyring
 
 [osd]
-	osd data = /srv/osd.$id
-	osd journal = /srv/osd.$id.journal
+	keyring = /var/lib/ceph/osd/$cluster-$id/keyring
 	osd journal size = 1000

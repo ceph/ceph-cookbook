@@ -28,20 +28,18 @@ else
 end
 
 execute 'ceph-mon mkfs' do
-  # TODO this is probably not an atomic test
-  creates '/srv/mon.single/magic'
   command <<-EOH
 set -e
-install -d -m0700 /srv/mon.single.temp
-ceph-authtool --create-keyring --gen-key --name=mon. /srv/mon.single.temp/keyring
-cat /etc/ceph/client.admin.keyring >>/srv/mon.single.temp/keyring
-monmaptool --create --clobber --add single #{ipaddress} /srv/mon.single.temp/monmap
-osdmaptool --clobber --createsimple 1 /srv/mon.single.temp/osdmap
-ceph-mon --mkfs -i single --monmap=/srv/mon.single.temp/monmap --osdmap=/srv/mon.single.temp/osdmap --keyring=/srv/mon.single.temp/keyring
-rm -rf /srv/mon.single.temp
-touch /srv/mon.single/done
+install -d -m0700 /var/lib/ceph/tmp/mon-single.temp
+ceph-authtool --create-keyring --gen-key --name=mon. /var/lib/ceph/tmp/mon-single.temp/keyring
+cat /etc/ceph/client.admin.keyring >>/var/lib/ceph/tmp/mon-single.temp/keyring
+monmaptool --create --clobber --add single #{ipaddress} /var/lib/ceph/tmp/mon-single.temp/monmap
+osdmaptool --clobber --createsimple 1 /var/lib/ceph/tmp/mon-single.temp/osdmap
+ceph-mon --mkfs -i single --monmap=/var/lib/ceph/tmp/mon-single.temp/monmap --osdmap=/var/lib/ceph/tmp/mon-single.temp/osdmap --keyring=/var/lib/ceph/tmp/mon-single.temp/keyring
+rm -rf /var/lib/ceph/tmp/mon-single.temp
+touch /var/lib/ceph/mon/ceph-single/done
 EOH
-  creates '/srv/mon.single/done'
+  creates '/var/lib/ceph/mon/ceph-single/done'
   notifies :start, "service[ceph-mon-all]", :immediately
 end
 
