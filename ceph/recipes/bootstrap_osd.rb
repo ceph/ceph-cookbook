@@ -12,7 +12,7 @@ end
 raise "No single_mon found." if mons.length < 1
 raise "Too many single_mons found." if mons.length > 1
 
-directory "/var/lib/ceph/boostrap-osd" do
+directory "/var/lib/ceph/bootstrap-osd" do
   owner "root"
   group "root"
   mode "0755"
@@ -21,7 +21,7 @@ end
 # TODO cluster name
 cluster = 'ceph'
 
-file "/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw" do
+file "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw" do
   owner "root"
   group "root"
   mode "0440"
@@ -31,8 +31,8 @@ end
 execute "format as keyring" do
   command <<-EOH
     # TODO don't put the key in "ps" output
-    read KEY <'/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw'
-    ceph-authtool '/var/lib/ceph/boostrap-osd/#{cluster}.keyring' --name=client.bootstrap-osd --add-key="$KEY"
-    rm -f '/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw'
+    read KEY <'/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
+    ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --name=client.bootstrap-osd --add-key="$KEY"
+    rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
 EOH
 end
