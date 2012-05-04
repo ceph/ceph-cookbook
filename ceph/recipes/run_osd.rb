@@ -3,10 +3,9 @@ cookbook_file "/etc/init/ceph-osd.conf" do
   mode 0644
 end
 
-cookbook_file "/etc/init/ceph-osd-all.conf" do
-  source "upstart-ceph-osd-all.conf"
+cookbook_file "/etc/init/ceph-hotplug.conf" do
+  source "upstart-ceph-hotplug.conf"
   mode 0644
-  notifies :restart, "service[ceph-osd-all]", :delayed
 end
 
 service "ceph-osd-all" do
