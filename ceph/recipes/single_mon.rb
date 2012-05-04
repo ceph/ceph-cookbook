@@ -27,6 +27,11 @@ else
   ipaddress = node['ipaddress']
 end
 
+service "ceph-mon-all" do
+  provider Chef::Provider::Service::Upstart
+  action [:enable]
+end
+
 execute 'ceph-mon mkfs' do
   command <<-EOH
 set -e
