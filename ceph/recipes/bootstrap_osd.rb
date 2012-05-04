@@ -1,118 +1,38 @@
-# this recipe bootstraps a simple osd, with help from single_mon
-
-# TODO manage actual disks, handle multiple OSDs per node, etc
+# this recipe allows bootstrapping new osds, with help from single_mon
 
 include_recipe "ceph::osd"
 include_recipe "ceph::conf"
 
-gem_package "open4"
+if is_crowbar?
+  mons = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']} AND ceph_bootstrap_osd_key:*")
+else
+  mons = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
+end
 
-ruby_block 'bootstrap a single (fake) osd' do
-  block do
-    require 'tempfile'
-    require 'rubygems'
-    # TODO this fails on the first run, works on retry
-    require 'open4'
+raise "No single_mon found." if mons.length < 1
+raise "Too many single_mons found." if mons.length > 1
 
-    def subprocess(*args)
-      Open4::spawn(args, :stdout=>STDERR, :stderr=>STDERR)
-    end
+directory "/var/lib/ceph/boostrap-osd" do
+  owner "root"
+  group "root"
+  mode "0755"
+end
 
-    def get_bootstrap_osd_key()
-      if is_crowbar?
-        nodes = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']} AND ceph_bootstrap_osd_key:*")
-      else
-        nodes = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
-      end
-      raise 'No single_mon found.' if nodes.length < 1
-      raise 'Too many single_mons found.' if nodes.length > 1
-      node = nodes[0]
-      key = node["ceph_bootstrap_osd_key"]
-      return key
-    end
+# TODO cluster name
+cluster = 'ceph'
 
-    def ceph_bootstrap_osd(path)
-      bootstrap_key = get_bootstrap_osd_key()
+file "/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw" do
+  owner "root"
+  group "root"
+  mode "0440"
+  content mons[0]["ceph_bootstrap_osd_key"]
+end
 
-
-      bootstrap_file = Tempfile.new('bootstrap-osd')
-      begin
-        bootstrap_path = bootstrap_file.path
-
-        monmap = Tempfile.new('monmap')
-        begin
-
-          # TODO don't put the key in "ps" output
-          subprocess 'ceph-authtool', bootstrap_path, '--name=client.bootstrap-osd', '--add-key='+bootstrap_key
-
-          osd_id = ''
-          Open4::spawn(
-                       [
-                        'ceph',
-                        '-k', bootstrap_path,
-                        '-n', 'client.bootstrap-osd',
-                        'osd', 'create', '--concise',
-                       ],
-                       :stdout=>osd_id,
-                       :stderr=>STDERR
-                       )
-          osd_id.chomp!
-          raise 'osd id is not numeric' unless /^[0-9]+$/.match(osd_id)
-
-          subprocess(
-                      'ceph',
-                      '-k', bootstrap_path,
-                      '-n', 'client.bootstrap-osd',
-                      'mon', 'getmap', '-o', monmap.path
-                      )
-
-          Dir.mkdir(path, 0755)
-
-          # TODO fix this to have sane paths
-          File.symlink(path, '/srv/osd.'+osd_id)
-          subprocess 'ceph-osd', '--mkfs', '--mkkey', '-i', osd_id, '--monmap', monmap.path
-
-        ensure
-          monmap.close
-          monmap.unlink
-        end
-
-        subprocess(
-                    'ceph',
-                    '--name', 'client.bootstrap-osd',
-                    '--keyring', bootstrap_path,
-                    'auth', 'add', 'osd.'+osd_id,
-                    '-i', '/etc/ceph/osd.'+osd_id+'.keyring',
-                    'osd', 'allow *',
-                    'mon', 'allow rwx'
-                    )
-
-        # TODO default crushmap already contains osd_id=='0'
-        if osd_id != '0'
-          subprocess(
-                     'ceph',
-                     '--name', 'client.bootstrap-osd',
-                     '--keyring', bootstrap_path,
-                     'osd', 'crush', 'add', osd_id, 'osd.'+osd_id,
-                     '1',
-                     'domain=root'
-                     )
-        end
-
-      ensure
-        bootstrap_file.close
-        bootstrap_file.unlink
-      end
-
-      File.open('/srv/ceph-fake-osd/done', 'w') { |f|
-          f.write('ok')
-      }
-    end
-
-    # TODO use not_if, http://wiki.opscode.com/display/chef/Resources
-    if not ::File.exists?('/srv/ceph-fake-osd/done')
-      ceph_bootstrap_osd('/srv/ceph-fake-osd')
-    end
-  end
-  notifies :start, "service[ceph-osd-all]"
+execute "format as keyring" do
+  command <<-EOH
+    # TODO don't put the key in "ps" output
+    read KEY <'/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw'
+    ceph-authtool '/var/lib/ceph/boostrap-osd/#{cluster}.keyring' --name=client.bootstrap-osd --add-key="$KEY"
+    rm -f '/var/lib/ceph/boostrap-osd/#{cluster}.keyring.raw'
+EOH
 end
