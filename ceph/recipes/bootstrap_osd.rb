@@ -30,7 +30,7 @@ end
 
 execute "format as keyring" do
   command <<-EOH
-    # TODO don't put the key in "ps" output
+    # TODO don't put the key in "ps" output, stdout
     read KEY <'/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
     ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key="$KEY"
     rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
