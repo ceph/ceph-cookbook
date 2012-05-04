@@ -1,6 +1,8 @@
+release_or_autobuild = node["ceph_branch"].nil? ? "relase" : "autobuild"
+
 execute "add autobuild gpg key to apt" do
   command <<-EOH
-wget -q -O- https://raw.github.com/NewDreamNetwork/ceph/master/keys/release.asc \
+wget -q -O- https://raw.github.com/ceph/ceph/master/keys/#{release_or_autobuild}.asc \
 | sudo apt-key add -
   EOH
 end
@@ -11,7 +13,8 @@ template '/etc/apt/sources.list.d/ceph.list' do
   mode '0644'
   source 'apt-sources-list.release.erb'
   variables(
-    :codename => node[:lsb][:codename]
+    :codename => node[:lsb][:codename],
+    :branch => node["ceph_branch"]
   )
 end
 
