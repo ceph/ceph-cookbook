@@ -75,8 +75,8 @@ ceph auth add \
   -i /etc/ceph/client.bootstrap-osd.keyring \
   client.bootstrap-osd \
   mon \
-    "allow command osd create; \
-    allow command osd crush add ...; \
+    "allow command osd create ...; \
+    allow command osd crush set ...; \
     allow command auth add * osd allow\\ * mon allow\\ rwx; \
     allow command mon getmap"
 EOH
