@@ -9,7 +9,6 @@ else
   mons = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
 end
 
-raise "No single_mon found." if mons.length < 1
 raise "Too many single_mons found." if mons.length > 1
 
 directory "/var/lib/ceph/bootstrap-osd" do
@@ -21,19 +20,21 @@ end
 # TODO cluster name
 cluster = 'ceph'
 
-file "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw" do
-  owner "root"
-  group "root"
-  mode "0440"
-  content mons[0]["ceph_bootstrap_osd_key"]
-end
+if mons.length == 1
+  file "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw" do
+    owner "root"
+    group "root"
+    mode "0440"
+    content mons[0]["ceph_bootstrap_osd_key"]
+  end
 
-execute "format as keyring" do
-  command <<-EOH
-    set -e
-    # TODO don't put the key in "ps" output, stdout
-    read KEY <'/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
-    ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key="$KEY"
-    rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
-EOH
+  execute "format as keyring" do
+    command <<-EOH
+      set -e
+      # TODO don't put the key in "ps" output, stdout
+      read KEY <'/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
+      ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key="$KEY"
+      rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
+    EOH
+  end
 end
