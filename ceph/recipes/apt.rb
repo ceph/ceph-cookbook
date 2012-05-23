@@ -1,4 +1,4 @@
-release_or_autobuild = node["ceph_branch"].nil? ? "relase" : "autobuild"
+release_or_autobuild = node["ceph_branch"].nil? ? "release" : "autobuild"
 
 execute "add autobuild gpg key to apt" do
   command <<-EOH
