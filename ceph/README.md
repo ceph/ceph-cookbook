@@ -26,9 +26,6 @@ Also required are the following cookbooks New Dream Network (DreamHost.com):
 
 https://github.com/NewDreamNetwork/ceph-cookbooks
 
-* btrfs
-* parted
-
 
 ATTRIBUTES
 ==========
