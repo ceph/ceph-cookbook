@@ -20,7 +20,6 @@
 packages = %w{
 	ceph
 	ceph-dbg
-	libceph1
 }
 
 packages.each do |pkg|

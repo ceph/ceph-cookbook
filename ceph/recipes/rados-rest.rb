@@ -21,8 +21,6 @@
 packages = %w{
 	radosgw
 	radosgw-dbg
-	librados2
-	librgw1
 }
 
 packages.each do |pkg|
