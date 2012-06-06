@@ -26,7 +26,7 @@ else
   ipaddress = node['ipaddress']
 end
 
-service "ceph-mon-all" do
+service "ceph-mon-all-starter" do
   provider Chef::Provider::Service::Upstart
   action [:enable]
 end
@@ -45,7 +45,7 @@ touch /var/lib/ceph/mon/ceph-single/done
 EOH
   # TODO built-in done-ness flag for ceph-mon?
   creates '/var/lib/ceph/mon/ceph-single/done'
-  notifies :start, "service[ceph-mon-all]", :immediately
+  notifies :start, "service[ceph-mon-all-starter]", :immediately
 end
 
 
