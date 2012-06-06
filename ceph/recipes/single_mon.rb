@@ -49,41 +49,19 @@ EOH
 end
 
 
-# this keyring will be used by filestore nodes to add new osd
-# instances
-execute 'create client.bootstrap-osd keyring' do
-  command <<-EOH
-set -e
-ceph-authtool \
-  --create-keyring \
-  --gen-key \
-  --name=client.bootstrap-osd \
-  /etc/ceph/client.bootstrap-osd.keyring.tmp
-mv /etc/ceph/client.bootstrap-osd.keyring.tmp /etc/ceph/client.bootstrap-osd.keyring
-EOH
-  creates '/etc/ceph/client.bootstrap-osd.keyring'
-end
-
 # TODO this will hang if you stopped ceph-mon manually; use some chef
-# hook mechanism to ensure ceph is running?
-execute 'authorize client.bootstrap-osd' do
-  command <<-EOH
-set -e
-ceph auth add \
-  -i /etc/ceph/client.bootstrap-osd.keyring \
-  client.bootstrap-osd \
-  mon \
-    "allow command osd create ...; \
-    allow command osd crush set ...; \
-    allow command auth add * osd allow\\ * mon allow\\ rwx; \
-    allow command mon getmap"
-EOH
-end
-
+# hook mechanism to ensure ceph is running? EXCEPT it might still hang
+# if the mon is not in quorum! test that!
 ruby_block "save osd bootstrap key in node attributes" do
   block do
-    key = %x[ceph-authtool --name client.bootstrap-osd -p /etc/ceph/client.bootstrap-osd.keyring]
-    raise 'ceph-authtool failed' unless $?.exitstatus == 0
+    key = %x[
+      ceph auth get-or-create-key client.bootstrap-osd mon \
+        "allow command osd create ...; \
+        allow command osd crush set ...; \
+        allow command auth add * osd allow\\ * mon allow\\ rwx; \
+        allow command mon getmap"
+    ]
+    raise 'adding or getting bootstrap-osd key failed' unless $?.exitstatus == 0
     node.override['ceph_bootstrap_osd_key'] = key
     node.save
   end
