@@ -1,4 +1,5 @@
 [global]
+	fsid = <%= @fsid %>
 	auth supported = cephx
 	keyring = /etc/ceph/$cluster.$name.keyring
 
@@ -7,6 +8,7 @@
 	# sections, and come up with names for the mons just to be
 	# able to list their addresses
  	mon host = <%= @mon_addresses.join(', ') %>
+	mon initial members = <%= @mon_initial_members.join(', ') %>
 
 [mon]
 	keyring = /var/lib/ceph/mon/$cluster-$id/keyring
