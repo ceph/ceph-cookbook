@@ -1,4 +1,4 @@
-# this recipe allows bootstrapping new osds, with help from single_mon
+# this recipe allows bootstrapping new osds, with help from mon
 
 include_recipe "ceph::osd"
 include_recipe "ceph::conf"
@@ -9,18 +9,19 @@ else
   mons = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
 end
 
-raise "Too many single_mons found." if mons.length > 1
+if mons.length < 1 then
+  puts "No ceph-mon found."
+else
 
-directory "/var/lib/ceph/bootstrap-osd" do
-  owner "root"
-  group "root"
-  mode "0755"
-end
+  directory "/var/lib/ceph/bootstrap-osd" do
+    owner "root"
+    group "root"
+    mode "0755"
+  end
 
-# TODO cluster name
-cluster = 'ceph'
+  # TODO cluster name
+  cluster = 'ceph'
 
-if mons.length == 1
   file "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw" do
     owner "root"
     group "root"
