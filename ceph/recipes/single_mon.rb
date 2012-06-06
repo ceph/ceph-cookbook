@@ -4,7 +4,6 @@ include_recipe "ceph::mon"
 include_recipe "ceph::conf"
 
 execute 'create client.admin keyring' do
-  creates '/etc/ceph/ceph.client.admin.keyring'
   command <<-EOH
 set -e
 ceph-authtool \
@@ -53,7 +52,6 @@ end
 # this keyring will be used by filestore nodes to add new osd
 # instances
 execute 'create client.bootstrap-osd keyring' do
-  creates '/etc/ceph/client.bootstrap-osd.keyring'
   command <<-EOH
 set -e
 ceph-authtool \
