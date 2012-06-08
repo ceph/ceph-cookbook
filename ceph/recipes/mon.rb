@@ -21,7 +21,6 @@ include_recipe "ceph::default"
 include_recipe "ceph::rados-rest"
 
 packages = %w{ 
-	librbd1
 	ceph-common
 	ceph-common-dbg
 }
