@@ -40,6 +40,18 @@ EOH
   notifies :start, "service[ceph-mon-all-starter]", :immediately
 end
 
+ruby_block "tell ceph-mon about its peers" do
+  block do
+    mon_addresses = get_mon_addresses()
+    mon_addresses.each do |addr|
+      system 'ceph', \
+        '--admin-daemon', "/var/run/ceph/ceph-mon.#{node['hostname']}.asok", \
+        'add_bootstrap_peer_hint', "#{addr}"
+      # ignore errors
+    end
+  end
+end
+
 ruby_block "create client.admin keyring" do
   block do
     if not ::File.exists?('/etc/ceph/ceph.client.admin.keyring') then
