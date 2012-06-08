@@ -19,14 +19,3 @@
 		        
 include_recipe "ceph::default"
 include_recipe "ceph::rados-rest"
-
-packages = %w{ 
-	ceph-common
-	ceph-common-dbg
-}
-
-packages.each do |pkg|
-    package pkg do
-        action :upgrade
-    end 
-end
