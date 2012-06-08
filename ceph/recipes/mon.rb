@@ -18,4 +18,3 @@
 # limitations under the License.
 		        
 include_recipe "ceph::default"
-include_recipe "ceph::rados-rest"
