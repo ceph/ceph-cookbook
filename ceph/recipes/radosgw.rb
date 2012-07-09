@@ -20,11 +20,6 @@
 include_recipe "ceph::rados-rest"
 
 packages = %w{
-	apache2
-	apache2-mpm-worker
-	apache2-utils
-	apache2.2-bin
-	apache2.2-common
 	libapache2-mod-fastcgi
 }
 
