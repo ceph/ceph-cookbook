@@ -3,6 +3,10 @@
 include_recipe "ceph::osd"
 include_recipe "ceph::conf"
 
+package 'gdisk' do
+  action :upgrade
+end
+
 if is_crowbar?
   mons = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']} AND ceph_bootstrap_osd_key:*")
 else
