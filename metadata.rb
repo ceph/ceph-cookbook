@@ -1,3 +1,4 @@
+name			"ceph"
 maintainer			"Kyle Bader"
 maintainer_email	"kyle.bader@dreamhost.com"
 license				"Apache 2.0"
