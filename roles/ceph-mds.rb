@@ -1,5 +1,5 @@
-name "ceph-cookbooks-mds"
+name "ceph-mds"
 description "Ceph Metadata Server"
 run_list(
-        'recipe[ceph-cookbooks::mds]'
+        'recipe[ceph::mds]'
 )

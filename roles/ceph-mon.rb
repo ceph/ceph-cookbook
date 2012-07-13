@@ -1,5 +1,5 @@
-name "ceph-cookbooks-mon"
+name "ceph-mon"
 description "Ceph Monitor"
 run_list(
-        'recipe[ceph-cookbooks::mon]'
+        'recipe[ceph::mon]'
 )
