@@ -3,12 +3,33 @@ def is_crowbar?()
 end
 
 def get_mon_addresses()
-  if is_crowbar?
-    mon_addresses = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']}").map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address + ":6789" }
-  else
-    mon_addresses = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment}").map { |node| node["ipaddress"] + ":6789" }
+  mons = []
+
+  # make sure if this node runs ceph-mon, it's always included even if
+  # search is laggy; put it first in the hopes that clients will talk
+  # primarily to local node
+  if node['roles'].include? 'ceph-mon'
+    mons << node
   end
-  return mon_addresses
+
+  if is_crowbar?
+    mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
+    if not mon_roles.empty?
+      search_string = mon_roles.map { |role_object| "role:"+role_object.name }.join(' OR ')
+      mons += search(:node, "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}")
+    end
+  else
+    mons += search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment}")
+  end
+
+  if is_crowbar?
+    mon_addresses = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
+  else
+    mon_addresses = mons.map { |node| node["ipaddress"] }
+  end
+
+  mon_addresses = mon_addresses.map { |ip| ip + ":6789" }
+  return mon_addresses.uniq
 end
 
 QUORUM_STATES = ['leader', 'peon']
