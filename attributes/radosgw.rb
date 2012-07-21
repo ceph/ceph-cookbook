@@ -17,6 +17,6 @@
 # limitations under the License.
 #
 default["ceph"]["radosgw"]["api_fqdn"] = "localhost"
-default["ceph"]["radosgw"]["admin-email"] = "admin@example.com"
+default["ceph"]["radosgw"]["admin_email"] = "admin@example.com"
 default["ceph"]["radosgw"]["rgw_addr"] = "*:80"
 
