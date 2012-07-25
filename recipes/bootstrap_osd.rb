@@ -7,13 +7,9 @@ package 'gdisk' do
   action :upgrade
 end
 
-if is_crowbar?
-  mons = search(:node, "role:ceph-mon AND ceph_config_environment:#{node['ceph']['config']['environment']} AND ceph_bootstrap_osd_key:*")
-else
-  mons = search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment} AND ceph_bootstrap_osd_key:*")
-end
+mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
 
-if mons.length < 1 then
+if mons.empty? then
   puts "No ceph-mon found."
 else
 
