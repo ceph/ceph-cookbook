@@ -3,17 +3,16 @@ def is_crowbar?()
 end
 
 def get_mon_nodes()
-  mons = []
-
   if is_crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     if not mon_roles.empty?
       search_string = mon_roles.map { |role_object| "role:"+role_object.name }.join(' OR ')
-      mons += search(:node, "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}")
+      search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
     end
   else
-    mons += search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment}")
+    search_string = "role:ceph-mon AND chef_environment:#{node.chef_environment}"
   end
+  mons = search(:node, search_string)
   return mons
 end
 
