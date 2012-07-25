@@ -2,15 +2,8 @@ def is_crowbar?()
   return defined?(Chef::Recipe::Barclamp) != nil
 end
 
-def get_mon_addresses()
+def get_mon_nodes()
   mons = []
-
-  # make sure if this node runs ceph-mon, it's always included even if
-  # search is laggy; put it first in the hopes that clients will talk
-  # primarily to local node
-  if node['roles'].include? 'ceph-mon'
-    mons << node
-  end
 
   if is_crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
@@ -21,6 +14,20 @@ def get_mon_addresses()
   else
     mons += search(:node, "role:ceph-mon AND chef_environment:#{node.chef_environment}")
   end
+  return mons
+end
+
+def get_mon_addresses()
+  mons = []
+
+  # make sure if this node runs ceph-mon, it's always included even if
+  # search is laggy; put it first in the hopes that clients will talk
+  # primarily to local node
+  if node['roles'].include? 'ceph-mon'
+    mons << node
+  end
+
+  mons += get_mon_nodes()
 
   if is_crowbar?
     mon_addresses = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
