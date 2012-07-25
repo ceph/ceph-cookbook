@@ -2,7 +2,7 @@ def is_crowbar?()
   return defined?(Chef::Recipe::Barclamp) != nil
 end
 
-def get_mon_nodes()
+def get_mon_nodes(extra_search=nil)
   if is_crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     if not mon_roles.empty?
@@ -11,6 +11,10 @@ def get_mon_nodes()
     end
   else
     search_string = "role:ceph-mon AND chef_environment:#{node.chef_environment}"
+  end
+
+  if not extra_search.nil?
+    search_string = "(#{search_string}) AND (#{extra_search})"
   end
   mons = search(:node, search_string)
   return mons
