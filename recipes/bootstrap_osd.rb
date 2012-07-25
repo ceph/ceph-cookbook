@@ -38,4 +38,46 @@ else
       rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
     EOH
   end
+
+  if is_crowbar?
+    ruby_block "select new disks for ceph osd" do
+      block do
+        do_trigger = false
+        node["crowbar"]["disks"].each do |disk, data|
+          use = true
+
+          if node["swift"]
+            node["swift"]["devs"].each do |num|
+              if num["name"].match(disk)
+                puts "Disk: #{disk} is being used for swift, skipping"
+                use = false
+              end
+            end
+          end
+
+          if node["crowbar"]["disks"][disk]["usage"] == "Storage" and use == true
+            puts "Disk: #{disk} should be used for ceph"
+
+            system 'ceph-disk-prepare', \
+              "/dev/#{disk}"
+            raise 'ceph-disk-prepare failed' unless $?.exitstatus == 0
+
+            do_trigger = true
+
+            node["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
+            node.save
+          end
+        end
+
+        if do_trigger
+          system 'udevadm', \
+            "trigger", \
+            "--subsystem-match=block", \
+            "--action=add"
+          raise 'udevadm trigger failed' unless $?.exitstatus == 0
+        end
+
+      end
+    end
+  end
 end
