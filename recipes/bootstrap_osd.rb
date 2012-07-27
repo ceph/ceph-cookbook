@@ -46,7 +46,7 @@ else
         node["crowbar"]["disks"].each do |disk, data|
           use = true
 
-          if node["swift"]
+          if node["swift"] and node["swift"]["devs"]
             node["swift"]["devs"].each do |num|
               if num["name"].match(disk)
                 puts "Disk: #{disk} is being used for swift, skipping"
