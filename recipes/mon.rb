@@ -46,7 +46,7 @@ ruby_block "tell ceph-mon about its peers" do
     mon_addresses.each do |addr|
       system 'ceph', \
         '--admin-daemon', "/var/run/ceph/ceph-mon.#{node['hostname']}.asok", \
-        'add_bootstrap_peer_hint', "#{addr}"
+        'add_bootstrap_peer_hint', addr
       # ignore errors
     end
   end
