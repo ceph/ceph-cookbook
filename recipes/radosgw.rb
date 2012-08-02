@@ -16,17 +16,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-		        
-include_recipe "ceph::rados-rest"
-
-packages = %w{
-	libapache2-mod-fastcgi
-}
 
 include_recipe "apache2"
 
+packages = %w{
+	radosgw
+	radosgw-dbg
+	libapache2-mod-fastcgi
+}
+
 packages.each do |pkg|
-	package pkg do 
+	package pkg do
 		action :upgrade
 	end
 end
