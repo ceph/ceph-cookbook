@@ -81,13 +81,14 @@ ruby_block "create client.admin keyring" do
   end
 end
 
-ruby_block "save osd bootstrap key in node attributes" do
+ruby_block "save bootstrap keys in node attributes" do
   block do
     if node['ceph_bootstrap_osd_key'].nil? then
+      raise "missing bootstrap_osd key but do have bootstrap_client key!" unless node['ceph_bootstrap_client_key'].nil?
       if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
+        puts 'ceph-mon is not in quorum, skipping bootstrap key generation for this run'
       else
-        key = %x[
+        osd_key = %x[
           ceph \
             --name mon. \
             --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
@@ -98,9 +99,23 @@ ruby_block "save osd bootstrap key in node attributes" do
             allow command mon getmap"
         ]
         raise 'adding or getting bootstrap-osd key failed' unless $?.exitstatus == 0
-        node.override['ceph_bootstrap_osd_key'] = key
+        node.override['ceph_bootstrap_osd_key'] = osd_key
+
+        client_key = %x[
+          ceph \
+            --name mon. \
+            --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
+            auth get-or-create-key client.bootstrap-client mon \
+            "allow command auth get-or-create-key * osd * mon *;"
+        ]
+        raise 'adding or getting bootstrap-client key failed' unless $?.exitstatus == 0
+        node.override['ceph_bootstrap_client_key'] = client_key
+        
         node.save
       end
+    else #node['ceph_bootstrap_osd_key'] not nil
+      raise "have ceph_bootstrap_osd_key but not bootstrap_client key!" unless !node['ceph_bootstrap_client_key'].nil?
     end
   end
 end
+
