@@ -45,7 +45,12 @@ else
         do_trigger = false
         node["crowbar"]["disks"].each do |disk, data|
 
-          if node["crowbar"]["disks"][disk]["usage"] == "Storage"
+          already_prepared = false
+          if not node["crowbar_wall"].nil? and not node["crowbar_wall"]["ceph"].nil? and not node["crowbar_wall"]["ceph"][disk].nil? and not node["crowbar_wall"]["ceph"][disk]["prepared"].nil?
+            already_prepared = true unless node["crowbar_wall"]["ceph"][disk]["prepared"] == false
+          end
+
+          if node["crowbar"]["disks"][disk]["usage"] == "Storage" and not already_prepared
             puts "Disk: #{disk} should be used for ceph"
 
             system 'ceph-disk-prepare', \
@@ -54,7 +59,9 @@ else
 
             do_trigger = true
 
-            node["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
+            node["crowbar_wall"]["ceph"] = {} unless node["crowbar_wall"]["ceph"]
+            node["crowbar_wall"]["ceph"][disk] = {} unless node["crowbar_wall"]["ceph"][disk]
+            node["crowbar_wall"]["ceph"][disk]["prepared"] = true
             node.save
           end
         end
