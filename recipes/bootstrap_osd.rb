@@ -44,18 +44,8 @@ else
       block do
         do_trigger = false
         node["crowbar"]["disks"].each do |disk, data|
-          use = true
 
-          if node["swift"] and node["swift"]["devs"]
-            node["swift"]["devs"].each do |num|
-              if num["name"].match(disk)
-                puts "Disk: #{disk} is being used for swift, skipping"
-                use = false
-              end
-            end
-          end
-
-          if node["crowbar"]["disks"][disk]["usage"] == "Storage" and use == true
+          if node["crowbar"]["disks"][disk]["usage"] == "Storage"
             puts "Disk: #{disk} should be used for ceph"
 
             system 'ceph-disk-prepare', \
