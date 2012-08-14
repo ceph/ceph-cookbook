@@ -63,9 +63,7 @@ else
       block do
         do_trigger = false
         node["crowbar"]["disks"].each do |disk, data|
-          use = true
-
-          if node["crowbar"]["disks"][disk]["usage"] == "Storage" and use == true
+          if node["crowbar"]["disks"][disk]["usage"] == "Storage"
             puts "Disk: #{disk} should be used for ceph"
 
             system 'ceph-disk-prepare', \
