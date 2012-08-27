@@ -52,6 +52,15 @@ ruby_block "tell ceph-mon about its peers" do
   end
 end
 
+ruby_block "wait until quorum is formed" do
+  block do
+    if not have_quorum? then
+      #sleep
+      sleep(1)
+    end
+  end
+end
+
 ruby_block "create client.admin keyring" do
   block do
     if not ::File.exists?('/etc/ceph/ceph.client.admin.keyring') then
