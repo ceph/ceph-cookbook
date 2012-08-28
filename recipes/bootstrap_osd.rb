@@ -7,7 +7,7 @@ package 'gdisk' do
   action :upgrade
 end
 
-mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
+mons = get_mon_nodes()
 
 if mons.empty? then
   puts "No ceph-mon found."
