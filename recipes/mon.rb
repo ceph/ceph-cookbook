@@ -56,7 +56,7 @@ have_key = ::File.exists?('/etc/ceph/ceph.client.admin.keyring')
 
 ruby_block "wait until quorum is formed" do
   block do
-    if not have_key and not have_quorum? then # so, our first run and we have no quorum
+    while not have_key and not have_quorum? do # so, our first run and we have no quorum
       #sleep
       sleep(1)
     end
