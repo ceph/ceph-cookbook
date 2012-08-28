@@ -7,11 +7,18 @@ package 'gdisk' do
   action :upgrade
 end
 
-mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
+mons = get_mon_nodes()
+have_mons = !mons.empty?
+mons = get_mon_nodes("ceph_bootstrap_osd_key")
 
-if mons.empty? then
+if not have_mons then
   puts "No ceph-mon found."
 else
+
+  while mons.empty?
+    sleep(1)
+    mons = get_mon_nodes("ceph_bootstrap_osd_key")
+  end # while mons.empty?
 
   directory "/var/lib/ceph/bootstrap-osd" do
     owner "root"
