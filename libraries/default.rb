@@ -13,10 +13,13 @@ def get_mon_nodes(extra_search=nil)
     search_string = "role:ceph-mon AND chef_environment:#{node.chef_environment}"
   end
 
-  if not extra_search.nil?
+  if not search_string.nil? and not extra_search.nil?
     search_string = "(#{search_string}) AND (#{extra_search})"
   end
-  mons = search(:node, search_string)
+  mons = {}
+  if not search_string.nil?
+    mons = search(:node, search_string)
+  end
   return mons
 end
 
