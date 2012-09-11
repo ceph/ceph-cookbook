@@ -36,7 +36,7 @@ else
 
   while mons.empty?
     sleep(1)
-    mons = get_mon_nodes("ceph_bootstrap_osd_key")
+    mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
   end # while mons.empty?
 
   directory "/var/lib/ceph/bootstrap-osd" do
