@@ -1,4 +1,7 @@
 # this recipe creates a monitor cluster
+raise "fsid must be set in config" if node["ceph"]["config"]['fsid'].nil?
+raise "mon_initial_members must be set in config" if node["ceph"]["config"]['mon_initial_members'].nil?
+
 
 require 'json'
 
