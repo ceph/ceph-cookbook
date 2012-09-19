@@ -3,7 +3,17 @@
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
-mons = get_mon_nodes("ceph_bootstrap_client_key:*")
+mons = nil
+
+if is_crowbar?
+  # for now, just assume the first proposal is the right one if we aren't assigned one
+  # TODO: this is a dirty, dirty hack because I don't want to work out the proper search
+  ceph_proposal = node['nova']['ceph_instance']
+  ceph_cluster_name = data_bag_item("crowbar", "bc-ceph-#{ceph_proposal}")["deployment"]["ceph"]["config"]["environment"]
+  mons = get_mon_nodes(ceph_cluster_name, "ceph_bootstrap_client_key:*")
+else
+  mons = get_mon_nodes(node['ceph']['config']['environment'], "ceph_bootstrap_client_key:*")
+end
 
 if mons.empty? then
   puts "No ceph-mon having ceph_bootstrap_client_key found."

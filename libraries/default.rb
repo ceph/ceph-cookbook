@@ -2,12 +2,12 @@ def is_crowbar?()
   return defined?(Chef::Recipe::Barclamp) != nil
 end
 
-def get_mon_nodes(extra_search=nil)
+def get_mon_nodes(ceph_environment, extra_search=nil)
   if is_crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     if not mon_roles.empty?
       search_string = mon_roles.map { |role_object| "role:"+role_object.name }.join(' OR ')
-      search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
+      search_string = "(#{search_string}) AND ceph_config_environment:#{ceph_environment}"
     end
   else
     search_string = "role:ceph-mon AND chef_environment:#{node.chef_environment}"
@@ -33,11 +33,22 @@ def get_mon_addresses()
     mons << node
   end
 
-  mons += get_mon_nodes()
-
   if is_crowbar?
+    #TODO: this sucks, and won't work for glance
+    if not node['ceph'].nil? and not node['ceph']['config'].nil? and not node['ceph']['config']['environment'].nil?
+      puts "is a ceph node; grabbing environment from ceph attributes"
+      ceph_environment = node['ceph']['config']['environment']
+    else
+      puts "not a ceph node; grabbing environment by searching data bag for nova's Ceph proposal"
+      ceph_proposal = node['nova']['ceph_instance']
+      ceph_environment = data_bag_item("crowbar", "bc-ceph-#{ceph_proposal}")["deployment"]["ceph"]["config"]["environment"]
+    end
+
+    mons += get_mon_nodes(ceph_environment)
     mon_addresses = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
+
   else
+    mons += get_mon_nodes(node['ceph']['config']['environment'])
     mon_addresses = mons.map { |node| node["ipaddress"] }
   end
 
