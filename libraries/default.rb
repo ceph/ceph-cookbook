@@ -16,7 +16,8 @@ def get_mon_nodes(ceph_environment, extra_search=nil)
   if not search_string.nil? and not extra_search.nil?
     search_string = "(#{search_string}) AND (#{extra_search})"
   end
-  mons = {}
+  mons = []
+
   if not search_string.nil?
     mons = search(:node, search_string)
   end
