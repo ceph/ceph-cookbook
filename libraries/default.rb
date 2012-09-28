@@ -37,10 +37,8 @@ def get_mon_addresses()
   if is_crowbar?
     #TODO: this sucks, and won't work for glance
     if not node['ceph'].nil? and not node['ceph']['config'].nil? and not node['ceph']['config']['environment'].nil?
-      puts "is a ceph node; grabbing environment from ceph attributes"
       ceph_environment = node['ceph']['config']['environment']
     else
-      puts "not a ceph node; grabbing environment by searching data bag for nova's Ceph proposal"
       ceph_proposal = node['nova']['ceph_instance']
       ceph_environment = data_bag_item("crowbar", "bc-ceph-#{ceph_proposal}")["deployment"]["ceph"]["config"]["environment"]
     end

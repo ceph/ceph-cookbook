@@ -70,7 +70,7 @@ ruby_block "create client.admin keyring" do
   block do
     if not have_key then
       if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
+        Chef::Log.info('ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run')
       else
         # TODO --set-uid=0
         key = %x[
@@ -100,7 +100,7 @@ ruby_block "save bootstrap keys in node attributes" do
     if node['ceph_bootstrap_osd_key'].nil? then
       raise "missing bootstrap_osd key but do have bootstrap_client key!" unless node['ceph_bootstrap_client_key'].nil?
       if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap key generation for this run'
+        Chef::Log.info('ceph-mon is not in quorum, skipping bootstrap key generation for this run')
       else
         osd_key = %x[
           ceph \

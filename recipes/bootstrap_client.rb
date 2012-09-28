@@ -16,7 +16,7 @@ else
 end
 
 if mons.empty? then
-  puts "No ceph-mon having ceph_bootstrap_client_key found."
+  Chef::Log.info("No ceph-mon having ceph_bootstrap_client_key found.")
 else
   
   directory "/var/lib/ceph/bootstrap-client" do

@@ -31,7 +31,7 @@ have_mons = !mons.empty?
 mons = get_mon_nodes(node['ceph']['config']['environment'], "ceph_bootstrap_osd_key:*")
 
 if not have_mons then
-  puts "No ceph-mon found."
+  Chef::Log.info("No ceph-mon found.")
 else
 
   while mons.empty?
@@ -70,7 +70,7 @@ else
           end
 
           if node["crowbar"]["disks"][disk]["usage"] == "Storage" and not already_prepared
-            puts "Disk: #{disk} should be used for ceph"
+            Chef::Log.debug("Disk: #{disk} should be used for ceph")
 
             system 'ceph-disk-prepare', \
               "/dev/#{disk}"
