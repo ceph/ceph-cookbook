@@ -1,7 +1,0 @@
-<% if @branch.nil? %>
-deb http://ceph.newdream.net/debian/ <%= @codename %> main
-deb-src http://ceph.newdream.net/debian/ <%= @codename %> main
-<% else %>
-deb http://gitbuilder.ceph.com/ceph-deb-<%= @codename %>-x86_64-basic/ref/<%= @branch %>/ <%= @codename %> main
-deb-src http://gitbuilder.ceph.com/ceph-deb-<%= @codename %>-x86_64-basic/ref/<%= @branch %>/ <%= @codename %> main
-<% end %>

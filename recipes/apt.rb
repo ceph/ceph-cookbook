@@ -1,21 +1,28 @@
-release_or_autobuild = node["ceph_branch"].nil? ? "release" : "autobuild"
+include_recipe "apt"
 
-execute "add autobuild gpg key to apt" do
-  command <<-EOH
-wget -q -O- https://raw.github.com/ceph/ceph/master/keys/#{release_or_autobuild}.asc \
-| sudo apt-key add -
-  EOH
+case node['ceph']['branch']
+when "release"
+  apt_repository "ceph-release" do
+    repo_name "ceph"
+    uri "http://ceph.newdream.net/debian/"
+    distribution node['lsb']['codename']
+    components ["main"]
+    key "https://raw.github.com/ceph/ceph/master/keys/release.asc"
+  end
+when "testing"
+  apt_repository "ceph-testing" do
+    repo_name "ceph"
+    uri "http://ceph.newdream.net/debian-testing/"
+    distribution node['lsb']['codename']
+    components ["main"]
+    key "https://raw.github.com/ceph/ceph/master/keys/release.asc"
+  end
+when "autobuild"
+  apt_repository "ceph-autobuild" do
+    repo_name "ceph"
+    uri "http://gitbuilder.ceph.com/ceph-deb-#{node['lsb']['codename']}-x86_64-basic/ref/autobuild"
+    distribution node['lsb']['codename']
+    components ["main"]
+    key "https://raw.github.com/ceph/ceph/master/keys/autobuild.asc"
+  end
 end
-
-template '/etc/apt/sources.list.d/ceph.list' do
-  owner 'root'
-  group 'root'
-  mode '0644'
-  source 'apt-sources-list.release.erb'
-  variables(
-    :codename => node[:lsb][:codename],
-    :branch => node["ceph_branch"]
-  )
-end
-
-execute 'apt-get update'
