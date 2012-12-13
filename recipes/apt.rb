@@ -4,7 +4,7 @@ case node['ceph']['branch']
 when "release"
   apt_repository "ceph-release" do
     repo_name "ceph"
-    uri "http://ceph.newdream.net/debian/"
+    uri "http://www.ceph.com/debian/"
     distribution node['lsb']['codename']
     components ["main"]
     key "https://raw.github.com/ceph/ceph/master/keys/release.asc"
@@ -12,7 +12,7 @@ when "release"
 when "testing"
   apt_repository "ceph-testing" do
     repo_name "ceph"
-    uri "http://ceph.newdream.net/debian-testing/"
+    uri "http://www.ceph.com/debian-testing/"
     distribution node['lsb']['codename']
     components ["main"]
     key "https://raw.github.com/ceph/ceph/master/keys/release.asc"
