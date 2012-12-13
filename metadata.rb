@@ -6,3 +6,4 @@ description			"Installs/Configures the Ceph distributed filesystem"
 long_description	IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version				"0.0.10"
 depends				"apache2"
+depends 			"apt"
