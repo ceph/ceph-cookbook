@@ -36,10 +36,6 @@ https://github.com/opscode/cookbooks
 
 * apache2
 
-Also required are the following cookbooks New Dream Network (DreamHost.com):
-
-https://github.com/NewDreamNetwork/ceph-cookbooks
-
 
 ATTRIBUTES
 ==========
