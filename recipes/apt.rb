@@ -4,7 +4,7 @@ case node['ceph']['branch']
 when "release"
   apt_repository "ceph-release" do
     repo_name "ceph"
-    uri "http://www.ceph.com/debian/"
+    uri "http://www.ceph.com/debian-#{node['ceph']['version']}/"
     distribution node['lsb']['codename']
     components ["main"]
     key "https://raw.github.com/ceph/ceph/master/keys/release.asc"
