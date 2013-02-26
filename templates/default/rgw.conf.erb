@@ -1,4 +1,8 @@
+<% if node['ceph']['radosgw']['rgw_port'] -%>
+FastCgiExternalServer /var/www/dummyradosgw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
+<% else -%>
 FastCgiExternalServer /var/www/dummyradosgw.fcgi -socket /var/run/ceph/radosgw.client.radosgw.<%= node[:hostname] %>
+<% end -%>
 
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_combined
 LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_debug
