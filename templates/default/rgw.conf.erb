@@ -1,15 +1,15 @@
 <% if node['ceph']['radosgw']['rgw_port'] -%>
 FastCgiExternalServer /var/www/dummyradosgw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
 <% else -%>
-FastCgiExternalServer /var/www/dummyradosgw.fcgi -socket /var/run/ceph/radosgw.client.radosgw.<%= node[:hostname] %>
+FastCgiExternalServer /var/www/dummyradosgw.fcgi -socket /var/run/ceph/radosgw.client.radosgw.<%= node['hostname'] %>
 <% end -%>
 
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_combined
 LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_debug
 
-<VirtualHost <%= @ceph_rgw_addr %>>
-  ServerName <%= @ceph_api_fqdn %>
-  ServerAdmin <%= @ceph_admin_email %>
+<VirtualHost <%= node['ceph']['radosgw']['rgw_addr'] %>>
+  ServerName <%= @params[:server_name] %>
+  ServerAdmin <%= node["ceph"]["radosgw"]["admin_email"] %>
   DocumentRoot /var/www/
 
   RewriteEngine On
