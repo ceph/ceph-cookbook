@@ -27,7 +27,7 @@ if node['ceph']['install_debug']
     ceph-dbg
     ceph-common-dbg
   }
-  packages = packages + packages_dbg
+  packages += packages_dbg
 end
 
 packages.each do |pkg|
