@@ -21,9 +21,15 @@ include_recipe "apache2"
 
 packages = %w{
 	radosgw
-	radosgw-dbg
 	libapache2-mod-fastcgi
 }
+
+if node['ceph']['install_debug']
+  packages_dbg = %w{
+    radosgw-dbg
+  }
+  packages += packages_dbg
+end
 
 packages.each do |pkg|
 	package pkg do

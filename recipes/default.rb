@@ -19,10 +19,16 @@
 		        
 packages = %w{
 	ceph
-	ceph-dbg
 	ceph-common
-	ceph-common-dbg
 }
+
+if node['ceph']['install_debug']
+  packages_dbg = %w{
+    ceph-dbg
+    ceph-common-dbg
+  }
+  packages += packages_dbg
+end
 
 packages.each do |pkg|
 	package pkg do
