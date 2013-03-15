@@ -18,6 +18,18 @@
 # limitations under the License.
 
 # this recipe allows bootstrapping new osds, with help from mon
+# Sample environment:
+# #knife node edit ceph1
+#"osd_devices": [
+#   {
+#       "device": "/dev/sdc"
+#   },
+#   {
+#       "device": "/dev/sdd",
+#       "dmcrypt": true,
+#       "journal": "/dev/sdd"
+#   }
+#]
 
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
