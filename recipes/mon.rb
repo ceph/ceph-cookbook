@@ -29,9 +29,10 @@ ceph-authtool "$KR" --create-keyring --name=mon. --add-key='#{node["ceph"]["moni
 ceph-mon --mkfs -i #{node['hostname']} --keyring "$KR"
 rm -f -- "$KR"
 touch /var/lib/ceph/mon/ceph-#{node['hostname']}/done
+touch /var/lib/ceph/mon/ceph-#{node['hostname']}/upstart
 EOH
-  # TODO built-in done-ness flag for ceph-mon?
   creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done'
+  creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/upstart'
   notifies :start, "service[ceph-mon-all-starter]", :immediately
 end
 
