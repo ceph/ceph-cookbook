@@ -1,4 +1,18 @@
-# this recipe creates a monitor cluster
+# This recipe creates a monitor cluster
+#
+# You should never change the mon default path or
+# the keyring path.
+# Don't change the cluster name either
+# Default path for mon data: /var/lib/ceph/mon/$cluster-$id/
+#   which will be /var/lib/ceph/mon/ceph-`hostname`/
+#   This path is used by upstart. If changed, upstart won't
+#   start the monitor
+# The keyring files are created using the following pattern:
+#  /etc/ceph/$cluster.client.$name.keyring
+#  e.g. /etc/ceph/ceph.client.admin.keyring
+#  The bootstrap-osd and bootstrap-mds keyring are a bit
+#  different and are created in
+#  /var/lib/ceph/bootstrap-{osd,mds}/ceph.keyring
 
 require 'json'
 
