@@ -48,55 +48,18 @@ ruby_block "tell ceph-mon about its peers" do
   end
 end
 
-ruby_block "create client.admin keyring" do
+# The key is going to be automatically
+# created,
+# We store it when it is created
+ruby_block "get osd-bootstrap keyring" do
   block do
-    if not ::File.exists?('/etc/ceph/ceph.client.admin.keyring') then
-      if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
-      else
-        # TODO --set-uid=0
-        key = %x[
-        ceph \
-          --name mon. \
-          --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
-          auth get-or-create-key client.admin \
-          mon 'allow *' \
-          osd 'allow *' \
-          mds allow
-        ]
-        raise 'adding or getting admin key failed' unless $?.exitstatus == 0
-        # TODO don't put the key in "ps" output, stdout
-        system 'ceph-authtool', \
-          '/etc/ceph/ceph.client.admin.keyring', \
-          '--create-keyring', \
-          '--name=client.admin', \
-          "--add-key=#{key}"
-        raise 'creating admin keyring failed' unless $?.exitstatus == 0
-      end
+    osd_bootstrap_key = ""
+    while osd_bootstrap_key.empty? do
+       osd_bootstrap_key = %x[ ceph auth get-key client.bootstrap-osd ]
+       sleep(1)
     end
+    node.override['ceph_bootstrap_osd_key'] = osd_bootstrap_key
+    node.save
   end
 end
 
-ruby_block "save osd bootstrap key in node attributes" do
-  block do
-    if node['ceph_bootstrap_osd_key'].nil? then
-      if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
-      else
-        key = %x[
-          ceph \
-            --name mon. \
-            --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
-            auth get-or-create-key client.bootstrap-osd mon \
-            "allow command osd create ...; \
-            allow command osd crush set ...; \
-            allow command auth add * osd allow\\ * mon allow\\ rwx; \
-            allow command mon getmap"
-        ]
-        raise 'adding or getting bootstrap-osd key failed' unless $?.exitstatus == 0
-        node.override['ceph_bootstrap_osd_key'] = key
-        node.save
-      end
-    end
-  end
-end
