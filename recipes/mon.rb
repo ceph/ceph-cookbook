@@ -1,15 +1,23 @@
-# this recipe creates a monitor cluster
+# This recipe creates a monitor cluster
+#
+# You should never change the mon default path or
+# the keyring path.
+# Don't change the cluster name either
+# Default path for mon data: /var/lib/ceph/mon/$cluster-$id/
+#   which will be /var/lib/ceph/mon/ceph-`hostname`/
+#   This path is used by upstart. If changed, upstart won't
+#   start the monitor
+# The keyring files are created using the following pattern:
+#  /etc/ceph/$cluster.client.$name.keyring
+#  e.g. /etc/ceph/ceph.client.admin.keyring
+#  The bootstrap-osd and bootstrap-mds keyring are a bit
+#  different and are created in
+#  /var/lib/ceph/bootstrap-{osd,mds}/ceph.keyring
 
 require 'json'
 
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
-
-if is_crowbar?
-  ipaddress = Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address
-else
-  ipaddress = node['ipaddress']
-end
 
 service "ceph-mon-all-starter" do
   provider Chef::Provider::Service::Upstart
@@ -22,6 +30,7 @@ cluster = 'ceph'
 execute 'ceph-mon mkfs' do
   command <<-EOH
 set -e
+mkdir -p /var/run/ceph
 # TODO chef creates doesn't seem to suppressing re-runs, do it manually
 if [ -e '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done' ]; then
   echo 'ceph-mon mkfs already done, skipping'
@@ -34,9 +43,10 @@ ceph-authtool "$KR" --create-keyring --name=mon. --add-key='#{node["ceph"]["moni
 ceph-mon --mkfs -i #{node['hostname']} --keyring "$KR"
 rm -f -- "$KR"
 touch /var/lib/ceph/mon/ceph-#{node['hostname']}/done
+touch /var/lib/ceph/mon/ceph-#{node['hostname']}/upstart
 EOH
-  # TODO built-in done-ness flag for ceph-mon?
   creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done'
+  creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/upstart'
   notifies :start, "service[ceph-mon-all-starter]", :immediately
 end
 
@@ -52,55 +62,18 @@ ruby_block "tell ceph-mon about its peers" do
   end
 end
 
-ruby_block "create client.admin keyring" do
+# The key is going to be automatically
+# created,
+# We store it when it is created
+ruby_block "get osd-bootstrap keyring" do
   block do
-    if not ::File.exists?('/etc/ceph/ceph.client.admin.keyring') then
-      if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
-      else
-        # TODO --set-uid=0
-        key = %x[
-        ceph \
-          --name mon. \
-          --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
-          auth get-or-create-key client.admin \
-          mon 'allow *' \
-          osd 'allow *' \
-          mds allow
-        ]
-        raise 'adding or getting admin key failed' unless $?.exitstatus == 0
-        # TODO don't put the key in "ps" output, stdout
-        system 'ceph-authtool', \
-          '/etc/ceph/ceph.client.admin.keyring', \
-          '--create-keyring', \
-          '--name=client.admin', \
-          "--add-key=#{key}"
-        raise 'creating admin keyring failed' unless $?.exitstatus == 0
-      end
+    osd_bootstrap_key = ""
+    while osd_bootstrap_key.empty? do
+       osd_bootstrap_key = %x[ ceph auth get-key client.bootstrap-osd ]
+       sleep(1)
     end
+    node.override['ceph_bootstrap_osd_key'] = osd_bootstrap_key
+    node.save
   end
 end
 
-ruby_block "save osd bootstrap key in node attributes" do
-  block do
-    if node['ceph_bootstrap_osd_key'].nil? then
-      if not have_quorum? then
-        puts 'ceph-mon is not in quorum, skipping bootstrap-osd key generation for this run'
-      else
-        key = %x[
-          ceph \
-            --name mon. \
-            --keyring '/var/lib/ceph/mon/#{cluster}-#{node['hostname']}/keyring' \
-            auth get-or-create-key client.bootstrap-osd mon \
-            "allow command osd create ...; \
-            allow command osd crush set ...; \
-            allow command auth add * osd allow\\ * mon allow\\ rwx; \
-            allow command mon getmap"
-        ]
-        raise 'adding or getting bootstrap-osd key failed' unless $?.exitstatus == 0
-        node.override['ceph_bootstrap_osd_key'] = key
-        node.save
-      end
-    end
-  end
-end

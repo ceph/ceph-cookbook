@@ -1,30 +1,35 @@
 [global]
-	auth supported = cephx
-	keyring = /etc/ceph/$cluster.$name.keyring
-
-	# this will be used by all clients to discover the mons to
-	# talk to; this way we don't need to have separate [mon.foo]
-	# sections, and come up with names for the mons just to be
-	# able to list their addresses
- 	mon host = <%= @mon_addresses.join(', ') %>
-
-	<% node['ceph']['config'].each do |k, v| %>
+  fsid =  <%= node["ceph"]["config"]["fsid"] %>
+  mon initial members = <%= node["ceph"]["config"]["mon_initial_members"] %>
+  mon host = <%= @mon_addresses.join(', ') %>
+<% if (! node['ceph']['config']['global'].nil?) -%>
+	<% node['ceph']['config']['global'].each do |k, v| %>
 	<%= k %> = <%= v %>
 	<% end %>
+<% end -%>
 
-[mon]
-	keyring = /var/lib/ceph/mon/$cluster-$id/keyring
-
-[mds]
-	keyring = /var/lib/ceph/mds/$cluster-$id/keyring
-
+<% if (! node['ceph']['config']['osd'].nil?) -%>
 [osd]
-	keyring = /var/lib/ceph/osd/$cluster-$id/keyring
-	osd journal size = 1000
-	filestore_xattr_use_omap = true
+    <% node['ceph']['config']['osd'].each do |k, v| %>
+    <%= k %> = <%= v %>
+    <% end %>
+<% end -%>
+
+<% if (! node['ceph']['config']['mon'].nil?) -%>
+[mon]
+    <% node['ceph']['config']['mon'].each do |k, v| %>
+    <%= k %> = <%= v %>
+    <% end %>
+<% end -%>
+
+<% if (! node['ceph']['config']['mds'].nil?) -%>
+[mds]
+  <% node['ceph']['config']['mds'].each do |key, value| -%>
+  <%= key %> = <%= value %>
+<%   end -%>
+<% end -%>
 
 <% node['ceph']['config-sections'].each do |name, sect| %>
-
 [<%= name %>]
 <% sect.each do |k, v| %>
 <%= k %> = <%= v %>

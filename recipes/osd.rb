@@ -18,12 +18,37 @@
 # limitations under the License.
 
 # this recipe allows bootstrapping new osds, with help from mon
+# Sample environment:
+# #knife node edit ceph1
+#"osd_devices": [
+#   {
+#       "device": "/dev/sdc"
+#   },
+#   {
+#       "device": "/dev/sdd",
+#       "dmcrypt": true,
+#       "journal": "/dev/sdd"
+#   }
+#]
 
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
 package 'gdisk' do
   action :upgrade
+end
+
+if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
+    package 'cryptsetup' do
+      action :upgrade
+    end
+end
+
+service "ceph-osd-all" do
+  provider Chef::Provider::Service::Upstart
+  service_name "ceph-osd-all"
+  supports :restart => true
+  action :enable
 end
 
 mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
@@ -86,6 +111,33 @@ else
         end
 
       end
+    end
+  else
+    # Calling ceph-disk-prepare is sufficient for deploying an OSD
+    # After ceph-disk-prepare finishes, the new device will be caught
+    # by udev which will run ceph-disk-activate on it (udev will map
+    # the devices if dm-crypt is used).
+    # IMPORTANT:
+    #  - Always use the default path for OSD (i.e. /var/lib/ceph/
+    # osd/$cluster-$id)
+    #  - $cluster should always be ceph
+    #  - The --dmcrypt option will be available starting w/ Cuttlefish
+    node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
+      dmcrypt = ""
+      if osd_device["encrypted"] == true
+        dmcrypt = "--dmcrypt"
+      end
+      execute "Creating Ceph OSD on #{osd_device['device']}" do
+        command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']}"
+        action :run
+        notifies :start, "service[ceph-osd-all]", :immediately
+      end
+      # we add this status to the node env
+      # so that we can implement recreate
+      # and/or delete functionalities in the
+      # future.
+      node.normal["ceph"]["osd_devices"][index]["status"] == "deployed"
+      node.save
     end
   end
 end
