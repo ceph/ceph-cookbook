@@ -23,7 +23,7 @@ service_type = service_type()
 service "ceph_mon" do
   case service_type
   when "upstart"
-    service_name "ceph-mon-all-starter"
+    service_name "ceph-mon-all"
     provider Chef::Provider::Service::Upstart
     action :enable
   when "sysvinit"
@@ -32,7 +32,6 @@ service "ceph_mon" do
   end
   supports :restart => true
 end
-
 
 # TODO cluster name
 cluster = 'ceph'
@@ -87,4 +86,3 @@ ruby_block "get osd-bootstrap keyring" do
     node.save
   end
 end
-
