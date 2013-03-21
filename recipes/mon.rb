@@ -19,10 +19,20 @@ require 'json'
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
-service "ceph-mon-all-starter" do
-  provider Chef::Provider::Service::Upstart
-  action [:enable]
+service_type = service_type()
+service "ceph_mon" do
+  case service_type
+  when "upstart"
+    service_name "ceph-mon-all-starter"
+    provider Chef::Provider::Service::Upstart
+    action :enable
+  when "sysvinit"
+    service_name "ceph"
+    provider Chef::Provider::Service::Init
+  end
+  supports :restart => true
 end
+
 
 # TODO cluster name
 cluster = 'ceph'
@@ -43,11 +53,11 @@ ceph-authtool "$KR" --create-keyring --name=mon. --add-key='#{node["ceph"]["moni
 ceph-mon --mkfs -i #{node['hostname']} --keyring "$KR"
 rm -f -- "$KR"
 touch /var/lib/ceph/mon/ceph-#{node['hostname']}/done
-touch /var/lib/ceph/mon/ceph-#{node['hostname']}/upstart
+touch /var/lib/ceph/mon/ceph-#{node['hostname']}/#{service_type}
 EOH
   creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done'
-  creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/upstart'
-  notifies :start, "service[ceph-mon-all-starter]", :immediately
+  creates "/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{service_type}"
+  notifies :start, "service[ceph_mon]", :immediately
 end
 
 ruby_block "tell ceph-mon about its peers" do

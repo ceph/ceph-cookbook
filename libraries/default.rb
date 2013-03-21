@@ -118,3 +118,12 @@ def have_quorum?()
     state = JSON.parse(mon_status)['state']
     return QUORUM_STATES.include?(state)
 end
+
+def service_type()
+  case node['platform']
+  when 'ubuntu'
+    return "upstart"
+  else
+    return "sysvinit"
+  end
+end
