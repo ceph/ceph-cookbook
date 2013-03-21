@@ -4,7 +4,7 @@ case node['ceph']['branch']
 when "stable"
   apt_repository "ceph-stable" do
     repo_name "ceph"
-    uri "http://www.ceph.com/debian-#{node['ceph']['version']}/"
+    uri "http://ceph.com/debian-#{node['ceph']['version']}/"
     distribution node['lsb']['codename']
     components ["main"]
     key "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc"
@@ -26,3 +26,4 @@ when "dev"
     key "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc"
   end
 end
+
