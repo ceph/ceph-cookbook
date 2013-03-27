@@ -16,18 +16,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-		        
-packages = %w{
-	ceph
-	ceph-common
-}
 
-if node['ceph']['install_debug']
-  packages_dbg = %w{
-    ceph-dbg
-    ceph-common-dbg
+packages = []
+
+case node['platform_family']
+when "debian"
+  packages = %w{
+      ceph
+      ceph-common
   }
-  packages += packages_dbg
+
+  if node['ceph']['install_debug']
+    packages_dbg = %w{
+      ceph-dbg
+      ceph-common-dbg
+    }
+    packages += packages_dbg
+  end
+when "rhel", "fedora"
+  packages = %w{
+      ceph
+  }
+
+  if node['ceph']['install_debug']
+    packages_dbg = %w{
+      ceph-debug
+    }
+    packages += packages_dbg
+  end
 end
 
 packages.each do |pkg|
