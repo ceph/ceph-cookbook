@@ -130,6 +130,9 @@ else
     #  - $cluster should always be ceph
     #  - The --dmcrypt option will be available starting w/ Cuttlefish
     node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
+      if not osd_device["status"].nil?
+        next
+      end
       dmcrypt = ""
       if osd_device["encrypted"] == true
         dmcrypt = "--dmcrypt"
@@ -143,7 +146,7 @@ else
       # so that we can implement recreate
       # and/or delete functionalities in the
       # future.
-      node.normal["ceph"]["osd_devices"][index]["status"] == "deployed"
+      node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
       node.save
     end
   end
