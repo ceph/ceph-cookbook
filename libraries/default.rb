@@ -81,7 +81,7 @@ def get_mon_addresses()
       mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
     else
       if node['ceph']['config']['global'] && node['ceph']['config']['global']['public network']
-        mon_ips = mons.map { |node| find_node_ip_in_network(node['ceph']['config']['global']['public network'], node) }
+        mon_ips = mons.map { |nodeish| find_node_ip_in_network(node['ceph']['config']['global']['public network'], nodeish) }
       else
         mon_ips = mons.map { |node| node['ipaddress'] + ":6789" }
       end
