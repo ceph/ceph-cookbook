@@ -1,7 +1,7 @@
 #
 # Author:: Kyle Bader <kyle.bader@dreamhost.com>
 # Cookbook Name:: ceph
-# Recipe:: radosgw
+# Recipe:: radosgw_apache2
 #
 # Copyright 2011, DreamHost Web Hosting
 #
@@ -17,29 +17,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-packages = %w{
-  radosgw
-}
+include_recipe "apache2"
+include_recipe "apache2::mod_fastcgi"
 
-if node['ceph']['install_debug']
-  packages_dbg = %w{
-    radosgw-dbg
-  }
-  packages += packages_dbg
+apache_module "rewrite" do
+  conf false
 end
 
-packages.each do |pkg|
-  package pkg do
-    action :upgrade
-  end
-end
-
-service "radosgw" do
-  service_name "radosgw"
-  supports :restart => true
-  action[:enable,:start]
-end
-
-if node["ceph"]["radosgw"]["webserver_companion"]
-  include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
+web_app "rgw" do
+  template "rgw.conf.erb"
+  server_name node['ceph']['radosgw']['api_fqdn']
+  admin_email node['ceph']['radosgw']['admin_email']
+  ceph_rgw_addr node['ceph']['radosgw']['rgw_addr']
 end
