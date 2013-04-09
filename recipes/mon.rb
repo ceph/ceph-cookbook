@@ -20,18 +20,6 @@ include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
 service_type = node["ceph"]["mon"]["init_style"]
-service "ceph_mon" do
-  case service_type
-  when "upstart"
-    service_name "ceph-mon-all"
-    provider Chef::Provider::Service::Upstart
-    action :enable
-  when "sysvinit"
-    service_name "ceph"
-    provider Chef::Provider::Service::Init
-  end
-  supports :restart => true
-end
 
 directory "/var/run/ceph" do
   owner "root"
@@ -62,7 +50,6 @@ unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
 
   execute 'ceph-mon mkfs' do
     command "ceph-mon --mkfs -i #{node['hostname']} --keyring '#{keyring}'"
-    notifies :restart, "service[ceph_mon]", :immediately
   end
 
   ruby_block "finalise" do
@@ -72,6 +59,19 @@ unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
       end
     end
   end
+end
+
+service "ceph_mon" do
+  case service_type
+  when "upstart"
+    service_name "ceph-mon-all"
+    provider Chef::Provider::Service::Upstart
+  when "sysvinit"
+    service_name "ceph"
+    provider Chef::Provider::Service::Init
+  end
+  supports :restart => true
+  action [ :enable, :start ]
 end
 
 get_mon_addresses().each do |addr|
