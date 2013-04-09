@@ -14,8 +14,6 @@
 #  different and are created in
 #  /var/lib/ceph/bootstrap-{osd,mds}/ceph.keyring
 
-require 'json'
-
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
