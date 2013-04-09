@@ -44,7 +44,7 @@ if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
     end
 end
 
-service_type = service_type()
+service_type = node["ceph"]["osd"]["init_style"]
 service "ceph_osd" do
   case service_type
   when "sysvinit"

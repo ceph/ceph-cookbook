@@ -19,7 +19,7 @@ require 'json'
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
-service_type = service_type()
+service_type = node["ceph"]["mon"]["init_style"]
 service "ceph_mon" do
   case service_type
   when "upstart"
