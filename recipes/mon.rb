@@ -70,7 +70,7 @@ service "ceph_mon" do
     service_name "ceph"
     provider Chef::Provider::Service::Init
   end
-  supports :restart => true
+  supports :restart => true, :status => true
   action [ :enable, :start ]
 end
 
