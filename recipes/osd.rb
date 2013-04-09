@@ -129,25 +129,29 @@ else
     # osd/$cluster-$id)
     #  - $cluster should always be ceph
     #  - The --dmcrypt option will be available starting w/ Cuttlefish
-    node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
-      if not osd_device["status"].nil?
-        next
+    unless node["ceph"]["osd_devices"].nil?
+      node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
+        if not osd_device["status"].nil?
+          next
+        end
+        dmcrypt = ""
+        if osd_device["encrypted"] == true
+          dmcrypt = "--dmcrypt"
+        end
+        execute "Creating Ceph OSD on #{osd_device['device']}" do
+          command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']}"
+          action :run
+          notifies :start, "service[ceph_osd]", :immediately
+        end
+        # we add this status to the node env
+        # so that we can implement recreate
+        # and/or delete functionalities in the
+        # future.
+        node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
+        node.save
       end
-      dmcrypt = ""
-      if osd_device["encrypted"] == true
-        dmcrypt = "--dmcrypt"
-      end
-      execute "Creating Ceph OSD on #{osd_device['device']}" do
-        command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']}"
-        action :run
-        notifies :start, "service[ceph_osd]", :immediately
-      end
-      # we add this status to the node env
-      # so that we can implement recreate
-      # and/or delete functionalities in the
-      # future.
-      node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
-      node.save
+    else
+      Log.info('node["ceph"]["osd_devices"] empty')
     end
   end
 end
