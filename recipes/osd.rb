@@ -73,21 +73,9 @@ else
   # TODO cluster name
   cluster = 'ceph'
 
-  file "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw" do
-    owner "root"
-    group "root"
-    mode "0440"
-    content mons[0]["ceph_bootstrap_osd_key"]
-  end
-
   execute "format as keyring" do
-    command <<-EOH
-      set -e
-      # TODO don't put the key in "ps" output, stdout
-      read KEY <'/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
-      ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key="$KEY"
-      rm -f '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring.raw'
-    EOH
+    command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{mons[0]["ceph_bootstrap_osd_key"]}'"
+    creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
   end
 
   if is_crowbar?
