@@ -31,7 +31,7 @@ end
 def find_node_ip_in_network(network, nodeish=nil)
   nodeish = node unless nodeish
   net = IPAddr.new(network)
-  node["network"]["interfaces"].each do |iface|
+  nodeish["network"]["interfaces"].each do |iface|
     if iface[1]["routes"].nil?
       next
     end
