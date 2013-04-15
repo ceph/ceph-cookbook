@@ -3,35 +3,35 @@
   mon initial members = <%= node["ceph"]["config"]["mon_initial_members"] %>
   mon host = <%= @mon_addresses.join(', ') %>
 <% if (! node['ceph']['config']['global'].nil?) -%>
-	<% node['ceph']['config']['global'].each do |k, v| %>
-	<%= k %> = <%= v %>
-	<% end %>
+  <% node['ceph']['config']['global'].each do |k, v| %>
+  <%= k %> = <%= v %>
+  <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['osd'].nil?) -%>
 [osd]
-    <% node['ceph']['config']['osd'].each do |k, v| %>
-    <%= k %> = <%= v %>
-    <% end %>
+  <% node['ceph']['config']['osd'].each do |k, v| %>
+  <%= k %> = <%= v %>
+  <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['mon'].nil?) -%>
 [mon]
-    <% node['ceph']['config']['mon'].each do |k, v| %>
-    <%= k %> = <%= v %>
-    <% end %>
+  <% node['ceph']['config']['mon'].each do |k, v| %>
+  <%= k %> = <%= v %>
+  <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['mds'].nil?) -%>
 [mds]
   <% node['ceph']['config']['mds'].each do |key, value| -%>
   <%= key %> = <%= value %>
-<%   end -%>
+  <%   end -%>
 <% end -%>
 
 <% node['ceph']['config-sections'].each do |name, sect| %>
 [<%= name %>]
-<% sect.each do |k, v| %>
-<%= k %> = <%= v %>
-<% end %>
+  <% sect.each do |k, v| %>
+  <%= k %> = <%= v %>
+  <% end %>
 <% end %>
