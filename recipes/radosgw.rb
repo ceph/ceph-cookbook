@@ -17,15 +17,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-packages = %w{
-  radosgw
-}
-
-if node['ceph']['install_debug']
-  packages_dbg = %w{
-    radosgw-dbg
+case node['platform_family']
+when "debian"
+  packages = %w{
+    radosgw
   }
-  packages += packages_dbg
+
+  if node['ceph']['install_debug']
+    packages_dbg = %w{
+      radosgw-dbg
+    }
+    packages += packages_dbg
+  end
+when "rhel","fedora","suse"
+  packages = %w{
+    ceph-radosgw
+  }
 end
 
 packages.each do |pkg|
