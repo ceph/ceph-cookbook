@@ -22,3 +22,9 @@ default["ceph"]["radosgw"]["rgw_addr"] = "*:80"
 default["ceph"]["radosgw"]["rgw_port"] = false
 default["ceph"]["radosgw"]["webserver_companion"] = "apache2" #can be false
 default['ceph']["radosgw"]['use_apache_fork'] = true
+case node['platform']
+when 'ubuntu'
+  default["ceph"]["radosgw"]["init_style"] = "upstart"
+else
+  default["ceph"]["radosgw"]["init_style"] = "sysvinit"
+end
