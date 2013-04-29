@@ -97,7 +97,7 @@ ruby_block "get osd-bootstrap keyring" do
   block do
     run_out = ""
     while run_out.empty?
-      run_out = Chef::ShellOut.new("ceph auth get-key client.bootstrap-osd").run_command.stdout.strip
+      run_out = Mixlib::ShellOut.new("ceph auth get-key client.bootstrap-osd").run_command.stdout.strip
       sleep 2
     end
     node.override['ceph']['bootstrap_osd_key'] = run_out
