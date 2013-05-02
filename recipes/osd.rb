@@ -44,7 +44,7 @@ if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
     end
 end
 
-service_type = service_type()
+service_type = node["ceph"]["osd"]["init_style"]
 service "ceph_osd" do
   case service_type
   when "sysvinit"
@@ -74,7 +74,7 @@ else
   cluster = 'ceph'
 
   execute "format as keyring" do
-    command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{mons[0]["ceph_bootstrap_osd_key"]}'"
+    command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{mons[0]["ceph"]["bootstrap_osd_key"]}'"
     creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
   end
 

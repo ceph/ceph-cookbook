@@ -1,4 +1,5 @@
 require 'ipaddr'
+require 'json'
 
 def is_crowbar?()
   return defined?(Chef::Recipe::Barclamp) != nil
@@ -117,13 +118,4 @@ def have_quorum?()
     raise 'getting monitor state failed' unless $?.exitstatus == 0
     state = JSON.parse(mon_status)['state']
     return QUORUM_STATES.include?(state)
-end
-
-def service_type()
-  case node['platform']
-  when 'ubuntu'
-    return "upstart"
-  else
-    return "sysvinit"
-  end
 end

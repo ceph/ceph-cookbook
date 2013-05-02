@@ -14,62 +14,79 @@
 #  different and are created in
 #  /var/lib/ceph/bootstrap-{osd,mds}/ceph.keyring
 
-require 'json'
-
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
 
-service_type = service_type()
+service_type = node["ceph"]["mon"]["init_style"]
+
+directory "/var/run/ceph" do
+  owner "root"
+  group "root"
+  mode 00644
+  recursive true
+  action :create
+end
+
+directory "/var/lib/ceph/mon/ceph-#{node["hostname"]}" do
+  owner "root"
+  group "root"
+  mode 00644
+  recursive true
+  action :create
+end
+
+# TODO cluster name
+cluster = 'ceph'
+
+unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
+  keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+
+  execute "format as keyring" do
+    command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{node["ceph"]["monitor-secret"]}' --cap mon 'allow *'"
+    creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  end
+
+  execute 'ceph-mon mkfs' do
+    command "ceph-mon --mkfs -i #{node['hostname']} --keyring '#{keyring}'"
+  end
+
+  ruby_block "finalise" do
+    block do
+      ["done", service_type].each do |ack|
+        File.open("/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{ack}", "w").close()
+      end
+    end
+  end
+end
+
+if service_type == "upstart"
+  service "ceph-mon" do
+    provider Chef::Provider::Service::Upstart
+    action :enable
+  end
+  service "ceph-mon-all" do
+    provider Chef::Provider::Service::Upstart
+    supports :status => true
+    action [ :enable, :start ]
+  end
+end
+
 service "ceph_mon" do
   case service_type
   when "upstart"
     service_name "ceph-mon-all-starter"
     provider Chef::Provider::Service::Upstart
-    action :enable
-  when "sysvinit"
+  else
     service_name "ceph"
-    provider Chef::Provider::Service::Init
   end
-  supports :restart => true
+  supports :restart => true, :status => true
+  action [ :enable, :start ]
 end
 
-
-# TODO cluster name
-cluster = 'ceph'
-
-execute 'ceph-mon mkfs' do
-  command <<-EOH
-set -e
-mkdir -p /var/run/ceph
-mkdir -p /var/lib/ceph/mon/ceph-#{node['hostname']}
-# TODO chef creates doesn't seem to suppressing re-runs, do it manually
-if [ -e '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done' ]; then
-  echo 'ceph-mon mkfs already done, skipping'
-  exit 0
-fi
-KR='/var/lib/ceph/tmp/#{cluster}-#{node['hostname']}.mon.keyring'
-# TODO don't put the key in "ps" output, stdout
-ceph-authtool "$KR" --create-keyring --name=mon. --add-key='#{node["ceph"]["monitor-secret"]}' --cap mon 'allow *'
-
-ceph-mon --mkfs -i #{node['hostname']} --keyring "$KR"
-rm -f -- "$KR"
-touch /var/lib/ceph/mon/ceph-#{node['hostname']}/done
-touch /var/lib/ceph/mon/ceph-#{node['hostname']}/#{service_type}
-EOH
-  creates '/var/lib/ceph/mon/ceph-#{node["hostname"]}/done'
-  creates "/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{service_type}"
-  notifies :start, "service[ceph_mon]", :immediately
-end
-
-ruby_block "tell ceph-mon about its peers" do
-  block do
-    mon_addresses = get_mon_addresses()
-    mon_addresses.each do |addr|
-      system 'ceph', \
-        '--admin-daemon', "/var/run/ceph/ceph-mon.#{node['hostname']}.asok", \
-        'add_bootstrap_peer_hint', addr
-      # ignore errors
-    end
+get_mon_addresses().each do |addr|
+  execute "peer #{addr}" do
+    command "ceph --admin-daemon '/var/run/ceph/ceph-mon.#{node['hostname']}.asok' add_bootstrap_peer_hint #{addr}"
+    ignore_failure true
   end
 end
 
@@ -78,13 +95,13 @@ end
 # We store it when it is created
 ruby_block "get osd-bootstrap keyring" do
   block do
-    osd_bootstrap_key = ""
-    while osd_bootstrap_key.empty? do
-       osd_bootstrap_key = %x[ ceph auth get-key client.bootstrap-osd ]
-       sleep(1)
+    run_out = ""
+    while run_out.empty?
+      run_out = Mixlib::ShellOut.new("ceph auth get-key client.bootstrap-osd").run_command.stdout.strip
+      sleep 2
     end
-    node.override['ceph_bootstrap_osd_key'] = osd_bootstrap_key
+    node.override['ceph']['bootstrap_osd_key'] = run_out
     node.save
   end
+  not_if { node['ceph']['bootstrap_osd_key'] }
 end
-
