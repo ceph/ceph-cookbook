@@ -47,7 +47,7 @@ when "rhel", "fedora"
 end
 
 packages.each do |pkg|
-	package pkg do
-		action :upgrade
-	end
+  package pkg do
+    action :install
+  end
 end
