@@ -45,19 +45,6 @@ if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
-service "ceph_osd" do
-  case service_type
-  when "sysvinit"
-    service_name "ceph"
-    provider Chef::Provider::Service::Init
-  when "upstart"
-    service_name "ceph-osd-all"
-    provider Chef::Provider::Service::Upstart
-    action :enable
-  end
-  supports :restart => true
-end
-
 mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
 
 if mons.empty? then
@@ -129,7 +116,6 @@ else
         execute "Creating Ceph OSD on #{osd_device['device']}" do
           command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']}"
           action :run
-          notifies :start, "service[ceph_osd]", :immediately
         end
         # we add this status to the node env
         # so that we can implement recreate
@@ -137,6 +123,17 @@ else
         # future.
         node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
         node.save
+      end
+      service "ceph_osd" do
+        case service_type
+        when "upstart"
+          service_name "ceph-osd-all-starter"
+          provider Chef::Provider::Service::Upstart
+        else
+          service_name "ceph"
+        end
+        action [ :enable, :start ]
+        supports :restart => true
       end
     else
       Log.info('node["ceph"]["osd_devices"] empty')
