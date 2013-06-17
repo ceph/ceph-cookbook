@@ -114,7 +114,7 @@ else
           dmcrypt = "--dmcrypt"
         end
         execute "Creating Ceph OSD on #{osd_device['device']}" do
-          command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']}"
+          command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
           action :run
         end
         # we add this status to the node env
