@@ -1,7 +1,7 @@
 <% if node['ceph']['radosgw']['rgw_port'] -%>
-FastCgiExternalServer /var/www/dummyradosgw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
+FastCgiExternalServer /var/www/s3gw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
 <% else -%>
-FastCgiExternalServer /var/www/dummyradosgw.fcgi -socket /var/run/ceph/radosgw.client.radosgw.<%= node['hostname'] %>
+FastCgiExternalServer /var/www/s3gw.fcgi -socket /var/run/ceph/radosgw.<%= node['hostname'] %>
 <% end -%>
 
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_combined
@@ -13,7 +13,7 @@ LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{Use
   DocumentRoot /var/www/
 
   RewriteEngine On
-  RewriteRule             ^/(.*) /dummyradosgw.fcgi?params=$1&%{QUERY_STRING} [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+  RewriteRule ^/([a-zA-Z0-9-_.]*)([/]?.*) /s3gw.fcgi?page=$1&params=$2&%{QUERY_STRING} [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
 
   <IfModule mod_fastcgi.c>
     <Directory /var/www/>
@@ -28,7 +28,7 @@ LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{Use
 
   AllowEncodedSlashes On
 
-  ErrorLog /var/log/apache2/error.log
-  CustomLog /var/log/apache2/sssrgw-access.log proxy_combined
+  ErrorLog /var/log/<%= node['apache']['package'] %>/error.log
+  CustomLog /var/log/<%= node['apache']['package'] %>/rgw-access.log proxy_combined
   ServerSignature Off
 </VirtualHost>

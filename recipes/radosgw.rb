@@ -17,15 +17,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-packages = %w{
-  radosgw
-}
-
-if node['ceph']['install_debug']
-  packages_dbg = %w{
-    radosgw-dbg
+case node['platform_family']
+when "debian"
+  packages = %w{
+    radosgw
   }
-  packages += packages_dbg
+
+  if node['ceph']['install_debug']
+    packages_dbg = %w{
+      radosgw-dbg
+    }
+    packages += packages_dbg
+  end
+when "rhel","fedora","suse"
+  packages = %w{
+    ceph-radosgw
+  }
 end
 
 packages.each do |pkg|
@@ -34,12 +41,48 @@ packages.each do |pkg|
   end
 end
 
-service "radosgw" do
-  service_name "radosgw"
-  supports :restart => true
-  action[:enable,:start]
-end
+include_recipe "ceph::conf"
 
-if node["ceph"]["radosgw"]["webserver_companion"]
-  include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
+unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
+  if node["ceph"]["radosgw"]["webserver_companion"]
+    include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
+  end
+
+  directory "/etc/ceph" do
+    owner "root"
+    group "root"
+    mode "0644"
+    action :create
+  end
+
+  ruby_block "create rados gateway client key" do
+    block do
+      keyring = %x[ ceph auth get-or-create client.radosgw.#{node['hostname']} osd 'allow rwx' mon 'allow r' --name mon. --key='#{node["ceph"]["monitor-secret"]}' ]
+      keyfile = File.new("/etc/ceph/ceph.client.radosgw.#{node['hostname']}.keyring", "w")
+      keyfile.puts(keyring)
+      keyfile.close
+    end
+  end
+
+  file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
+    action :create
+  end
+
+  service "radosgw" do
+    case node["ceph"]["radosgw"]["init_style"]
+    when "upstart"
+      service_name "radosgw-all-starter"
+      provider Chef::Provider::Service::Upstart
+    else
+      if node['platform'] == "debian"
+        service_name "radosgw"
+      else
+        service_name "ceph-radosgw"
+      end
+    end
+    supports :restart => true
+    action [ :enable, :start ]
+  end
+else
+  Log.info("Rados Gateway already deployed")
 end
