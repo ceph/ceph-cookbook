@@ -45,7 +45,7 @@ if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
-mons = get_mon_nodes("ceph_bootstrap_osd_key:*")
+mons = node['ceph']['encrypted_data_bags'] ? get_mon_nodes : get_mon_nodes("ceph_bootstrap_osd_key:*")
 
 if mons.empty? then
   puts "No ceph-mon found."
@@ -60,8 +60,15 @@ else
   # TODO cluster name
   cluster = 'ceph'
 
+  osd_secret = if node['ceph']['encrypted_data_bags']
+    secret = Chef::EncryptedDataBagItem.load_secret(node["ceph"]["osd"]["secret_file"])
+    Chef::EncryptedDataBagItem.load("ceph", "osd", secret)["secret"]
+  else
+    mons[0]["ceph"]["bootstrap_osd_key"]
+  end
+
   execute "format as keyring" do
-    command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{mons[0]["ceph"]["bootstrap_osd_key"]}'"
+    command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{osd_secret}'"
     creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
   end
 
