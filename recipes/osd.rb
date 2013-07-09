@@ -106,7 +106,7 @@ else
     #  - The --dmcrypt option will be available starting w/ Cuttlefish
     unless node["ceph"]["osd_devices"].nil?
       node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
-        if not osd_device["status"].nil?
+        unless osd_device["status"]
           next
         end
         dmcrypt = ""
@@ -116,13 +116,19 @@ else
         execute "Creating Ceph OSD on #{osd_device['device']}" do
           command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
           action :run
+          notifies :create, "ruby_block[save osd_device status]"
         end
         # we add this status to the node env
         # so that we can implement recreate
         # and/or delete functionalities in the
         # future.
-        node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
-        node.save
+        ruby_block "save osd_device status" do
+          block do
+            node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
+            node.save
+          end
+          action :nothing
+        end
       end
       service "ceph_osd" do
         case service_type
