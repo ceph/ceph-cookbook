@@ -4,8 +4,8 @@ FastCgiExternalServer /var/www/s3gw.fcgi -host 127.0.0.1:<%= node['ceph']['rados
 FastCgiExternalServer /var/www/s3gw.fcgi -socket /var/run/ceph/radosgw.<%= node['hostname'] %>
 <% end -%>
 
-LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_combined
-LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" proxy_debug
+LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Host}i\"" proxy_combined
+LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Host}i\"" proxy_debug
 
 <VirtualHost <%= node['ceph']['radosgw']['rgw_addr'] %>>
   ServerName <%= @params[:server_name] %>
