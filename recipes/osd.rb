@@ -106,7 +106,8 @@ else
     #  - The --dmcrypt option will be available starting w/ Cuttlefish
     unless node["ceph"]["osd_devices"].nil?
       node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
-        unless osd_device["status"]
+        if !osd_device["status"].nil?
+          Log.info("osd: osd_device #{osd_device} has already been setup.")
           next
         end
         dmcrypt = ""
