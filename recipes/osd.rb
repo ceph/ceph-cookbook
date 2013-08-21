@@ -114,8 +114,17 @@ else
         if osd_device["encrypted"] == true
           dmcrypt = "--dmcrypt"
         end
+        create_cmd = "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
+        if osd_device["type"] == "directory"
+          directory osd_device["device"] do
+            owner "root"
+            group "root"
+            recursive true
+          end
+          create_cmd << " && ceph-disk-activate #{osd_device['device']}"
+        end
         execute "Creating Ceph OSD on #{osd_device['device']}" do
-          command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
+          command create_cmd
           action :run
           notifies :create, "ruby_block[save osd_device status]"
         end
