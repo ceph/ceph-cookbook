@@ -41,8 +41,15 @@ cluster = 'ceph'
 unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
   keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
 
+  monitor_secret = if node['ceph']['encrypted_data_bags']
+    secret = Chef::EncryptedDataBagItem.load_secret(node["ceph"]["mon"]["secret_file"])
+    Chef::EncryptedDataBagItem.load("ceph", "mon", secret)["secret"]
+  else
+    node["ceph"]["monitor-secret"]
+  end
+
   execute "format as keyring" do
-    command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{node["ceph"]["monitor-secret"]}' --cap mon 'allow *'"
+    command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{monitor_secret}' --cap mon 'allow *'"
     creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
   end
 
@@ -93,15 +100,17 @@ end
 # The key is going to be automatically
 # created,
 # We store it when it is created
-ruby_block "get osd-bootstrap keyring" do
-  block do
-    run_out = ""
-    while run_out.empty?
-      run_out = Mixlib::ShellOut.new("ceph auth get-key client.bootstrap-osd").run_command.stdout.strip
-      sleep 2
+unless node['ceph']['encrypted_data_bags']
+  ruby_block "get osd-bootstrap keyring" do
+    block do
+      run_out = ""
+      while run_out.empty?
+        run_out = Mixlib::ShellOut.new("ceph auth get-key client.bootstrap-osd").run_command.stdout.strip
+        sleep 2
+      end
+      node.override['ceph']['bootstrap_osd_key'] = run_out
+      node.save
     end
-    node.override['ceph']['bootstrap_osd_key'] = run_out
-    node.save
+    not_if { node['ceph']['bootstrap_osd_key'] }
   end
-  not_if { node['ceph']['bootstrap_osd_key'] }
 end

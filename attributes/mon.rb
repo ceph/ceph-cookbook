@@ -4,3 +4,4 @@ when 'ubuntu'
 else
   default["ceph"]["mon"]["init_style"] = "sysvinit"
 end
+default["ceph"]["mon"]["secret_file"] = "/etc/chef/secrets/ceph_mon"
