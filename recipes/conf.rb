@@ -8,6 +8,13 @@ if node['roles'].include? 'ceph-radosgw'
   is_rgw = true
 end
 
+directory "/etc/ceph" do
+  owner "root"
+  group "root"
+  mode "0755"
+  action :create
+end
+
 template '/etc/ceph/ceph.conf' do
   source 'ceph.conf.erb'
   variables(
