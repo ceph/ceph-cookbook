@@ -22,7 +22,7 @@ service_type = node["ceph"]["mon"]["init_style"]
 directory "/var/run/ceph" do
   owner "root"
   group "root"
-  mode 00644
+  mode 00755
   recursive true
   action :create
 end
@@ -30,7 +30,7 @@ end
 directory "/var/lib/ceph/mon/ceph-#{node["hostname"]}" do
   owner "root"
   group "root"
-  mode 00644
+  mode 00755
   recursive true
   action :create
 end
