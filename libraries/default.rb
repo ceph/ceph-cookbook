@@ -13,7 +13,7 @@ def get_mon_nodes(extra_search=nil)
       search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
     end
   else
-    search_string = "roles:ceph-mon AND chef_environment:#{node.chef_environment}"
+    search_string = "role:ceph-mon AND chef_environment:#{node.chef_environment}"
   end
 
   if not extra_search.nil?
