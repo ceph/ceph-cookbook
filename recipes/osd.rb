@@ -133,13 +133,13 @@ else
         execute "Creating Ceph OSD on #{osd_device['device']}" do
           command create_cmd
           action :run
-          notifies :create, "ruby_block[save osd_device status]"
+          notifies :create, "ruby_block[save osd_device status #{index}]"
         end
         # we add this status to the node env
         # so that we can implement recreate
         # and/or delete functionalities in the
         # future.
-        ruby_block "save osd_device status" do
+        ruby_block "save osd_device status #{index}" do
           block do
             node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
             node.save
