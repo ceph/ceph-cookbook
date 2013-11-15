@@ -21,7 +21,7 @@ repo = node['ceph'][platform_family][branch]['repository']
 if branch == "dev"
   # Instead of using the yum cookbook,
   # we do it this way. It avoids a dependency
-  system "curl -s node['ceph'][#{platform_family}]['dev']['repository_key'] > /etc/pki/rpm-gpg/RPM-GPG-KEY-CEPH"
+  system "curl -s #{node['ceph'][platform_family]['dev']['repository_key']} > /etc/pki/rpm-gpg/RPM-GPG-KEY-CEPH"
   system "cat > /etc/yum.repos.d/ceph.repo << EOF\n" \
     "[ceph]\n" \
     "name=Ceph\n" \
