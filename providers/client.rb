@@ -1,15 +1,29 @@
+def whyrun_supported?
+  true
+end
 
 action :add do
   filename = @current_resource.filename
   keyname = @current_resource.keyname
   caps = @new_resource.caps.map{|k,v| "#{k} '#{v}'"}.join(' ')
-  auth_set_key(keyname, caps) unless @current_resource.exists
-
-  file filename do
-    content lazy {get_new_key_file(keyname)}
-    owner "root"
-    group "root"
-    mode "640"
+  if @current_resource.exists
+    Chef::Log.info "#{ @new_resource} already exists - nothing to do"
+    return
+  end
+  if @current_resource.caps != @new_resource.caps
+    converge_by("create ceph auth key #{keyname}") do
+      auth_set_key(keyname, caps) unless @current_resource.exists
+    end
+  end
+  if get_saved_key_file(@current_resource.filename) != get_new_key_file(@current_resource.keyname)
+    converge_by("save ceph auth key to #{filename}") do
+      file filename do
+        content lazy {get_new_key_file(keyname)}
+        owner "root"
+        group "root"
+        mode "640"
+      end
+    end
   end
 end
 
