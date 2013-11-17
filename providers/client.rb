@@ -1,9 +1,12 @@
 
 action :add do
-  auth_set_key(current_resource.keyname, current_resource.caps) unless current_resource.exists
+  filename = @current_resource.filename
+  keyname = @current_resource.keyname
+  caps = @new_resource.caps.map{|k,v| "#{k} '#{v}'"}.join(' ')
+  auth_set_key(keyname, caps) unless @current_resource.exists
 
   file filename do
-    content lazy {auth_get_key(keyname)}
+    content lazy {get_new_key_file(keyname)}
     owner "root"
     group "root"
     mode "640"
@@ -15,35 +18,45 @@ def load_current_resource
   @current_resource.name(@new_resource.name)
   @current_resource.keyname(@new_resource.keyname || "client.#{current_resource.name}.#{node['hostname']}")
   @current_resource.filename(@new_resource.filename || "/etc/ceph/ceph.client.#{current_resource.name}.#{node['hostname']}.keyring")
-  if String === @new_resource.caps
-    @current_resource.caps(@new_resource.caps)
-  else
-    @current_resource.caps(@new_resource.caps.map{|k,v| "#{k} '#{v}'"}.join(' '))
+  @current_resource.caps(get_caps(@current_resource.keyname))
+  if @current_resource.caps == @new_resource.caps and
+     get_saved_key_file(@current_resource.filename) == get_new_key_file(@current_resource.keyname)
+    @current_resource.exists = true
   end
-  @current_resource.exists = true if @current_resource.caps == get_caps(@current_resource.keyname)
 end
 
-def get_key(keyname)
+def get_new_key_file(keyname)
   cmd = "ceph auth print_key #{keyname}"
-  Mixlib::ShellOut.new(cmd).run_command.stdout
+  key = Mixlib::ShellOut.new(cmd).run_command.stdout
+  "[#{keyname}]\n\tkey = #{key}\n"
+end
+
+def get_saved_key_file(filename)
+  ::IO.read(filename) rescue ""
 end
 
 def get_caps(keyname)
-  cmd = "ceph auth print_caps #{keyname}"
-  Mixlib::ShellOut.new(cmd).run_command.stdout
+  caps = {}
+  cmd = "ceph auth get #{keyname}"
+  output = Mixlib::ShellOut.new(cmd).run_command.stdout
+  output.scan(/caps\s*(\S+)\s*=\s*"([^"]*)"/) {|k, v|
+    caps[k] = v
+  }
+  caps
 end
 
 def auth_set_key(keyname, caps)
-  ruby_block "set key: #{keyname}" do
-    block do
-      set_cmd = "ceph auth get-or-create #{keyname} --#{caps} --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
-      set_cmd = Mixlib::ShellOut.new(set_cmd)
-      cmd = set_cmd.run_command
-      if cmd.stderr.scan(/EINVAL.*but cap.*does not match/)
-        # delete an old key if it exists and is wrong
-        Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
-        set_cmd.run_command.error!
-      end
-    end
+  set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
+  set_cmd = Mixlib::ShellOut.new(set_cmd)
+  cmd = set_cmd.run_command
+  if cmd.stderr.scan(/EINVAL.*but cap.*does not match/)
+    Chef::Log.info("Deleting old key with incorrect caps")
+    # delete an old key if it exists and is wrong
+    Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
+    # try to create again
+    set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
+    set_cmd = Mixlib::ShellOut.new(set_cmd)
+    cmd = set_cmd.run_command
   end
+  cmd = set_cmd.run_command.error!
 end

@@ -2,7 +2,7 @@ actions :add
 default_action :add
 
 attribute :name, :kind_of => String, :name_attribute => true
-attribute :caps, :kind_of => [Hash, String], :default => {"mon"=>"allow r", "osd"=>"allow r"}
+attribute :caps, :kind_of => Hash, :default => {"mon"=>"allow r", "osd"=>"allow r"}
 
 # what the key should be called in the ceph cluster
 # defaults to client.#{name}.#{hostname}

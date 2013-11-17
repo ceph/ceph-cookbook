@@ -49,7 +49,6 @@ unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done
   end
 
   ceph_client "radosgw" do
-    description "rados gateway"
     caps ({"mon" => "allow rw", "osd" => "allow rwx"})
   end
 
