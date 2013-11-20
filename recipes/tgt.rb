@@ -38,16 +38,12 @@ end
 include_recipe "ceph::conf"
 # probably needs the key
 service "tgt" do
-  case node["ceph"]["radosgw"]["init_style"]
-  when "upstart"
+  if node['platform'] == "ubuntu"
+    # The ceph version of tgt does not provide an Upstart script
+    provider Chef::Provider::Service::Init::Debian
     service_name "tgt"
-    provider Chef::Provider::Service::Upstart
   else
-    if node['platform'] == "debian"
-      service_name "tgt"
-    else
-      service_name "tgt"
-    end
+    service_name "tgt"
   end
   supports :restart => true
   action [ :enable, :start ]
