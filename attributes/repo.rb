@@ -15,7 +15,7 @@ when "debian"
   default['ceph']['debian']['dev']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc"
 when "rhel"
   #Redhat/CentOS default repositories
-  default['ceph']['rhel']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/el6/x86_64/ceph-release-1-0.el6.noarch.rpm"
+  default['ceph']['rhel']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/el6/noarch/ceph-release-1-0.el6.noarch.rpm"
   default['ceph']['rhel']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/el6/x86_64/ceph-release-1-0.el6.noarch.rpm"
   default['ceph']['rhel']['dev']['repository'] = "http://gitbuilder.ceph.com/ceph-rpm-centos6-x86_64-basic/ref/#{node['ceph']['version']}/x86_64/"
   default['ceph']['rhel']['dev']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc"
