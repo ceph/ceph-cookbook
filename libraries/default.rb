@@ -32,32 +32,12 @@ end
 def find_node_ip_in_network(network, nodeish=nil)
   nodeish = node unless nodeish
   net = IPAddr.new(network)
-  nodeish["network"]["interfaces"].each do |iface|
-    if iface[1]["routes"].nil?
-      next
-    end
-    if net.ipv4?
-      iface[1]["routes"].each_with_index do |route, index|
-        if iface[1]["routes"][index]["destination"] == network
-          return "#{iface[1]["routes"][index]["src"]}:6789"
-        end
-      end
-    else
-      # Here we are getting an IPv6. We assume that
-      # the configuration is stateful.
-      # For this configuration to not fail in a stateless
-      # configuration, you should run:
-      #  echo "0" > /proc/sys/net/ipv6/conf/*/use_tempaddr
-      # on each server, this will disabe temporary addresses
-      # See: http://en.wikipedia.org/wiki/IPv6_address#Temporary_addresses
-      iface[1]["routes"].each_with_index do |route, index|
-        if iface[1]["routes"][index]["destination"] == network
-          iface[1]["addresses"].each do |k,v|
-            if v["scope"] == "Global" and v["family"] == "inet6"
-              return "[#{k}]:6789"
-            end
-          end
-        end
+  nodeish["network"]["interfaces"].each do |iface, addrs|
+    addrs["addresses"].each do |ip, params|
+      if params['family'].eql?("inet6") && net.include?(ip)
+        return "[#{ip}]:6789"
+      elsif params['family'].eql?("inet") && net.include?(ip)
+        return "#{ip}:6789"
       end
     end
   end
