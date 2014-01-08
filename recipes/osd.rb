@@ -38,7 +38,7 @@ package 'gdisk' do
   action :upgrade
 end
 
-if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
+if node[:dmcrypt]
     package 'cryptsetup' do
       action :upgrade
     end
