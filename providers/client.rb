@@ -72,5 +72,5 @@ def auth_set_key(keyname, caps)
     set_cmd = Mixlib::ShellOut.new(set_cmd)
     cmd = set_cmd.run_command
   end
-  cmd = set_cmd.run_command.error!
+  cmd = set_cmd.error!
 end
