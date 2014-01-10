@@ -61,6 +61,7 @@ def find_node_ip_in_network(network, nodeish=nil)
       end
     end
   end
+  nil
 end
 
 def get_mon_addresses()
@@ -88,6 +89,7 @@ def get_mon_addresses()
       end
     end
   end
+  mon_ips = mon_ips.reject{|m|m.nil?}
   return mon_ips.uniq
 end
 
