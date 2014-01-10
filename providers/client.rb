@@ -60,7 +60,18 @@ def get_caps(keyname)
 end
 
 def auth_set_key(keyname, caps)
-  set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
+  # find the monitor secret
+  mon_secret = ""
+  mons = get_mon_nodes()
+  if not mons.empty?
+    mon_secret = mons[0]["ceph"]["monitor-secret"]
+  elsif mons.empty? and node["ceph"]["monitor-secret"]
+    mon_secret = node["ceph"]["monitor-secret"]
+  else
+    Chef::Log.warn("No monitor secret found")
+  end
+  # try to add the key
+  set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{mon_secret}'"
   set_cmd = Mixlib::ShellOut.new(set_cmd)
   cmd = set_cmd.run_command
   if cmd.stderr.scan(/EINVAL.*but cap.*does not match/)
@@ -68,7 +79,7 @@ def auth_set_key(keyname, caps)
     # delete an old key if it exists and is wrong
     Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
     # try to create again
-    set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
+    set_cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{mon_secret}'"
     set_cmd = Mixlib::ShellOut.new(set_cmd)
     cmd = set_cmd.run_command
   end
