@@ -14,10 +14,15 @@ action :add do
         auth_set_key(keyname, caps) unless @current_resource.exists
       end
     end
-    if get_saved_key_file(@current_resource.filename) != get_new_key_file(@current_resource.keyname)
+    if @current_resource.as_keyring
+      get_new_content = method(:get_new_key_file)
+    else
+      get_new_content = method(:get_new_key)
+    end
+    if get_saved_key_file(@current_resource.filename) != get_new_content.call(keyname)
       converge_by("save ceph auth key to #{filename}") do
         file filename do
-          content lazy {get_new_key_file(keyname)}
+          content lazy {get_new_content.call(keyname)}
           owner "root"
           group "root"
           mode "640"
@@ -30,13 +35,26 @@ end
 def load_current_resource
   @current_resource = Chef::Resource::CephClient.new(@new_resource.name)
   @current_resource.name(@new_resource.name)
+  @current_resource.as_keyring(@new_resource.as_keyring)
   @current_resource.keyname(@new_resource.keyname || "client.#{current_resource.name}.#{node['hostname']}")
-  @current_resource.filename(@new_resource.filename || "/etc/ceph/ceph.client.#{current_resource.name}.#{node['hostname']}.keyring")
   @current_resource.caps(get_caps(@current_resource.keyname))
+  if @current_resource.as_keyring
+    get_new_content = method(:get_new_key_file)
+    @current_resource.filename(@new_resource.filename || "/etc/ceph/ceph.client.#{current_resource.name}.#{node['hostname']}.keyring")
+  else
+    get_new_content = method(:get_new_key)
+    @current_resource.filename(@new_resource.filename || "/etc/ceph/ceph.client.#{current_resource.name}.#{node['hostname']}.secret")
+  end
   if @current_resource.caps == @new_resource.caps and
-     get_saved_key_file(@current_resource.filename) == get_new_key_file(@current_resource.keyname)
+     get_saved_key_file(@current_resource.filename) == get_new_content.call(@current_resource.keyname)
     @current_resource.exists = true
   end
+end
+
+def get_new_key(keyname)
+  cmd = "ceph auth print_key #{keyname}"
+  key = Mixlib::ShellOut.new(cmd).run_command.stdout
+  key
 end
 
 def get_new_key_file(keyname)
