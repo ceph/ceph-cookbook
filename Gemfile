@@ -7,3 +7,8 @@ gem "chefspec", "~> 3.0.2"
 gem "foodcritic", "~> 3.0.3"
 gem "strainer"
 gem "rubocop"
+
+group :integration do
+  gem "test-kitchen", "~> 1.1.1"
+  gem "kitchen-vagrant", "~> 0.14"
+end
