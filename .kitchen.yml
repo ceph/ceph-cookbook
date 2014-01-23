@@ -9,9 +9,13 @@ platforms:
 - name: centos-6.4
 - name: centos-5.9
 
+provisioner:
+    name: chef_zero
+
 suites:
 - name: default
   run_list:
+    - "recipe[ceph::repo]"
     - "recipe[ceph]"
   attributes: &defaults
     ceph:
@@ -19,23 +23,19 @@ suites:
         fsid: ae3f1d03-bacd-4a90-b869-1a4fabb107f2
         mon_initial_members:
           - "127.0.0.1"
-- name: repo
-  run_list:
-    - "recipe[ceph::repo]"
-  attributes: *defaults
 - name: osd
   run_list:
-    - "recipe[ceph::osd]"
+    - "role[ceph-osd]"
   attributes: *defaults
 - name: mon
   run_list:
-    - "recipe[ceph::mon]"
+    - "role[ceph-mon]"
   attributes: *defaults
 - name: mds
   run_list:
-    - "recipe[ceph::mds]"
+    - "role[ceph-mds]"
   attributes: *defaults
 - name: radosgw
   run_list:
-    - "recipe[ceph::radosgw]"
+    - "role[ceph-radosgw]"
   attributes: *defaults
