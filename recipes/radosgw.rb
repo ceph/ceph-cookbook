@@ -48,13 +48,8 @@ unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done
     include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
   end
 
-  ruby_block "create rados gateway client key" do
-    block do
-      keyring = %x[ ceph auth get-or-create client.radosgw.#{node['hostname']} osd 'allow rwx' mon 'allow rw' --name mon. --key='#{node["ceph"]["monitor-secret"]}' ]
-      keyfile = File.new("/etc/ceph/ceph.client.radosgw.#{node['hostname']}.keyring", "w")
-      keyfile.puts(keyring)
-      keyfile.close
-    end
+  ceph_client "radosgw" do
+    caps ({"mon" => "allow rw", "osd" => "allow rwx"})
   end
 
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
