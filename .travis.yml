@@ -5,4 +5,4 @@ before_script:
     - bundle exec berks install
 bundler_args: --without integration
 script:
-  - bundle exec strainer test
+  - bundle exec strainer test --except kitchen
