@@ -34,3 +34,16 @@ else
   #This is a stable or testing branch
   system "rpm -U #{node['ceph'][platform_family][branch]['repository']}"
 end
+
+if node['roles'].include?("ceph-tgt")
+  repo = node['ceph'][platform_family]['extras']['repository']
+  system "curl -s #{node['ceph'][platform_family]['extras']['repository_key']} > /etc/pki/rpm-gpg/RPM-GPG-KEY-CEPH-EXTRAS"
+  system "cat > /etc/yum.repos.d/ceph.repo << EOF\n" \
+    "[ceph]\n" \
+    "name=Ceph\n" \
+    "baseurl=#{repo}\n" \
+    "enabled=1\n" \
+    "gpgcheck=1\n" \
+    "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CEPH-EXTRAS\n" \
+    "EOF\n"
+end
