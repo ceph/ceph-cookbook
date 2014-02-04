@@ -7,7 +7,7 @@ default['ceph']['extras_repo_url'] = "http://ceph.com/packages/ceph-extras"
 
 case node['platform_family']
 when "debian"
-  #Debian/Ubuntu default repositories
+  # Debian/Ubuntu default repositories
   default['ceph']['debian']['stable']['repository'] = "#{node['ceph']['repo_url']}/debian-#{node['ceph']['version']}/"
   default['ceph']['debian']['stable']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc"
   default['ceph']['debian']['testing']['repository'] = "#{node['ceph']['repo_url']}/debian-testing/"
@@ -17,7 +17,7 @@ when "debian"
   default['ceph']['debian']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/debian/"
   default['ceph']['debian']['extras']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc"
 when "rhel"
-  #Redhat/CentOS default repositories
+  # Redhat/CentOS default repositories
   default['ceph']['rhel']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/el6/noarch/ceph-release-1-0.el6.noarch.rpm"
   default['ceph']['rhel']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/el6/x86_64/ceph-release-1-0.el6.noarch.rpm"
   default['ceph']['rhel']['dev']['repository'] = "http://gitbuilder.ceph.com/ceph-rpm-centos6-x86_64-basic/ref/#{node['ceph']['version']}/x86_64/"
@@ -25,7 +25,7 @@ when "rhel"
   default['ceph']['rhel']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/rpm/rhel6/x86_64/"
   default['ceph']['rhel']['extras']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc"
 when "fedora"
-  #Fedora default repositories
+  # Fedora default repositories
   default['ceph']['fedora']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/fc#{node['platform_version']}/x86_64/ceph-release-1-0.fc#{node['platform_version']}.noarch.rpm"
   default['ceph']['fedora']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/fc#{node['platform_version']}/x86_64/ceph-release-1-0.fc#{node['platform_version']}.noarch.rpm"
   default['ceph']['fedora']['dev']['repository'] = "http://gitbuilder.ceph.com/ceph-rpm-fc#{node['platform_version']}-x86_64-basic/ref/#{node['ceph']['version']}/RPMS/x86_64/"
@@ -33,9 +33,9 @@ when "fedora"
   default['ceph']['fedora']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/rpm/fedora#{node['platform_version']}/x86_64/"
   default['ceph']['fedora']['extras']['repository_key'] = "https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc"
 when "suse"
-  #(Open)SuSE default repositories
+  # (Open)SuSE default repositories
   # Chef doesn't make a difference between suse and opensuse
-  suse = %x[ head -n1 /etc/SuSE-release| awk '{print $1}' ].chomp.downcase #can be suse or opensuse
+  suse = %x[ head -n1 /etc/SuSE-release| awk '{print $1}' ].chomp.downcase # can be suse or opensuse
   suse = "sles" if suse == "suse"
   suse_version = suse << %x[ grep VERSION /etc/SuSE-release | awk -F'= ' '{print $2}' ].chomp
 

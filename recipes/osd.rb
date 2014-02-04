@@ -40,7 +40,7 @@ end
 
 package 'cryptsetup' do
   action :upgrade
-  not_if { search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty? }
+  not_if { search(:node, "hostname:#{node['hostname']} AND dmcrypt:true").empty? }
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
@@ -59,11 +59,11 @@ else
   # TODO: cluster name
   cluster = 'ceph'
 
-  osd_secret = if node['ceph']['encrypted_data_bags']
+  if node['ceph']['encrypted_data_bags']
     secret = Chef::EncryptedDataBagItem.load_secret(node["ceph"]["osd"]["secret_file"])
-    Chef::EncryptedDataBagItem.load("ceph", "osd", secret)["secret"]
+    osd_secret = Chef::EncryptedDataBagItem.load("ceph", "osd", secret)["secret"]
   else
-    mons[0]["ceph"]["bootstrap_osd_key"]
+    osd_secret = mons[0]["ceph"]["bootstrap_osd_key"]
   end
 
   execute "format as keyring" do
