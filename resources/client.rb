@@ -2,10 +2,10 @@ actions :add
 default_action :add
 
 attribute :name, :kind_of => String, :name_attribute => true
-attribute :caps, :kind_of => Hash, :default => {"mon"=>"allow r", "osd"=>"allow r"}
+attribute :caps, :kind_of => Hash, :default => {"mon" => "allow r", "osd" => "allow r"}
 
 # Whether to store the secret in a keyring file or a plain secret file
-attribute :as_keyring, :kind_of => [TrueClass,FalseClass], :default => true
+attribute :as_keyring, :kind_of => [TrueClass, FalseClass], :default => true
 
 # what the key should be called in the ceph cluster
 # defaults to client.#{name}.#{hostname}

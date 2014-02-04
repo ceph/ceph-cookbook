@@ -29,17 +29,16 @@ ceph_client name do
   as_keyring false
 end
 
-mons = get_mon_addresses()
-mons = mons.join(",")
-mons = mons + ":/"
-if not mons.empty?
-  directory node['ceph']['cephfs_mount']
-  mount node['ceph']['cephfs_mount'] do
-    fstype "ceph"
-    device mons
-    options "_netdev,name=#{client_name},secretfile=#{filename}"
-    dump 0
-    pass 0
-    action [:mount, :enable]
-  end
+mons = get_mon_addresses.join(",") + ":/"
+
+directory node['ceph']['cephfs_mount']
+
+mount node['ceph']['cephfs_mount'] do
+  fstype "ceph"
+  device mons
+  options "_netdev,name=#{client_name},secretfile=#{filename}"
+  dump 0
+  pass 0
+  action [:mount, :enable]
+  not_if { mons.empty? }
 end

@@ -20,7 +20,7 @@
 # this recipe allows bootstrapping new osds, with help from mon
 # Sample environment:
 # #knife node edit ceph1
-#"osd_devices": [
+# "osd_devices": [
 #   {
 #       "device": "/dev/sdc"
 #   },
@@ -29,7 +29,7 @@
 #       "dmcrypt": true,
 #       "journal": "/dev/sdd"
 #   }
-#]
+# ]
 
 include_recipe "ceph::default"
 include_recipe "ceph::conf"
@@ -38,16 +38,15 @@ package 'gdisk' do
   action :upgrade
 end
 
-if !search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty?
-    package 'cryptsetup' do
-      action :upgrade
-    end
+package 'cryptsetup' do
+  action :upgrade
+  not_if { search(:node,"hostname:#{node['hostname']} AND dmcrypt:true").empty? }
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
 mons = node['ceph']['encrypted_data_bags'] ? get_mon_nodes : get_mon_nodes("ceph_bootstrap_osd_key:*")
 
-if mons.empty? then
+if mons.empty?
   puts "No ceph-mon found."
 else
 
@@ -57,7 +56,7 @@ else
     mode "0755"
   end
 
-  # TODO cluster name
+  # TODO: cluster name
   cluster = 'ceph'
 
   osd_secret = if node['ceph']['encrypted_data_bags']
