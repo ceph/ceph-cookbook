@@ -36,13 +36,12 @@ when "suse"
   #(Open)SuSE default repositories
   # Chef doesn't make a difference between suse and opensuse
   suse = %x[ head -n1 /etc/SuSE-release| awk '{print $1}' ].chomp.downcase #can be suse or opensuse
-  if suse == "suse"
-    suse = "sles"
-  end
+  suse = "sles" if suse == "suse"
   suse_version = suse << %x[ grep VERSION /etc/SuSE-release | awk -F'= ' '{print $2}' ].chomp
+
   default['ceph']['suse']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/#{suse_version}/x86_64/ceph-release-1-0.#{suse_version}.noarch.rpm"
   default['ceph']['suse']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/#{suse_version}/x86_64/ceph-release-1-0.#{suse_version}.noarch.rpm"
   default['ceph']['suse']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/rpm/#{suse_version}/x86_64/"
 else
-  raise "#{node['platform_family']} is not supported"
+  fail "#{node['platform_family']} is not supported"
 end

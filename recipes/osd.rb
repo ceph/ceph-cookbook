@@ -85,7 +85,7 @@ else
 
             do_trigger = true
 
-            node["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
+            node.set["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
             node.save
           end
         end
