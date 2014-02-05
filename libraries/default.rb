@@ -73,7 +73,7 @@ def get_mon_addresses
     # make sure if this node runs ceph-mon, it's always included even if
     # search is laggy; put it first in the hopes that clients will talk
     # primarily to local node
-    mons << node if node['roles'].include?('ceph-mon')
+    mons << node if node['ceph']['is_mon']
 
     mons += get_mon_nodes
     if is_crowbar?
