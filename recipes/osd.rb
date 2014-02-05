@@ -40,7 +40,7 @@ end
 
 package 'cryptsetup' do
   action :upgrade
-  not_if { search(:node, "hostname:#{node['hostname']} AND dmcrypt:true").empty? }
+  only_if { node[:dmcrypt] }
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
