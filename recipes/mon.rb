@@ -19,6 +19,8 @@ include_recipe "ceph::conf"
 
 service_type = node["ceph"]["mon"]["init_style"]
 
+node.default['ceph']['is_mon'] = true
+
 directory "/var/run/ceph" do
   owner "root"
   group "root"
