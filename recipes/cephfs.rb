@@ -29,7 +29,7 @@ ceph_client name do
   as_keyring false
 end
 
-mons = get_mon_addresses.join(",") + ":/"
+mons = mon_addresses.join(",") + ":/"
 
 directory node['ceph']['cephfs_mount']
 

@@ -29,7 +29,7 @@ when "debian"
     }
     packages += packages_dbg
   end
-when "rhel","fedora","suse"
+when "rhel", "fedora", "suse"
   packages = %w{
     ceph-radosgw
   }
@@ -43,13 +43,13 @@ end
 
 include_recipe "ceph::conf"
 
-unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
+if !::File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
   if node["ceph"]["radosgw"]["webserver_companion"]
     include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
   end
 
   ceph_client "radosgw" do
-    caps ({"mon" => "allow rw", "osd" => "allow rwx"})
+    caps ({ "mon" => "allow rw", "osd" => "allow rwx" })
   end
 
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
@@ -69,7 +69,7 @@ unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done
       end
     end
     supports :restart => true
-    action [ :enable, :start ]
+    action [:enable, :start]
   end
 else
   Log.info("Rados Gateway already deployed")

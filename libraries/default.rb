@@ -1,14 +1,14 @@
 require 'ipaddr'
 require 'json'
 
-def is_crowbar?
+def crowbar?
   !defined?(Chef::Recipe::Barclamp).nil?
 end
 
-def get_mon_nodes(extra_search=nil)
-  if is_crowbar?
+def get_mon_nodes(extra_search = nil)
+  if crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
-    if not mon_roles.empty?
+    unless mon_roles.empty?
       search_string = mon_roles.map { |role_object| "roles:" + role_object.name }.join(' OR ')
       search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
     end
@@ -28,7 +28,7 @@ end
 # 1. We look if the network is IPv6 or IPv4
 # 2. We look for a route matching the network
 # 3. We grab the IP and return it with the port
-def find_node_ip_in_network(network, nodeish=nil)
+def find_node_ip_in_network(network, nodeish = nil)
   nodeish = node unless nodeish
   net = IPAddr.new(network)
   nodeish["network"]["interfaces"].each do |iface, addrs|
@@ -43,11 +43,11 @@ def find_node_ip_in_network(network, nodeish=nil)
   nil
 end
 
-def get_mon_addresses
+def mon_addresses
   mon_ips = []
 
   if File.exists?("/var/run/ceph/ceph-mon.#{node['hostname']}.asok")
-    mon_ips = get_quorum_members_ips
+    mon_ips = quorum_members_ips
   else
     mons = []
     # make sure if this node runs ceph-mon, it's always included even if
@@ -56,7 +56,7 @@ def get_mon_addresses
     mons << node if node['ceph']['is_mon']
 
     mons += get_mon_nodes
-    if is_crowbar?
+    if crowbar?
       mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
     else
       if node['ceph']['config']['global'] && node['ceph']['config']['global']['public network']
@@ -69,7 +69,7 @@ def get_mon_addresses
   mon_ips.reject { |m| m.nil? }.uniq
 end
 
-def get_quorum_members_ips
+def quorum_members_ips
   mon_ips = []
   cmd = Mixlib::ShellOut.new("ceph --admin-daemon /var/run/ceph/ceph-mon.#{node['hostname']}.asok mon_status")
   cmd.run_command

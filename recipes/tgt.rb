@@ -22,8 +22,7 @@ when "debian"
   packages = %w{
     tgt
   }
-
-when "rhel","fedora"
+when "rhel", "fedora"
   packages = %w{
     scsi-target-utils
   }
@@ -46,5 +45,5 @@ service "tgt" do
     service_name "tgt"
   end
   supports :restart => true
-  action [ :enable, :start ]
+  action [:enable, :start]
 end

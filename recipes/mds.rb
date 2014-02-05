@@ -67,6 +67,6 @@ service "ceph_mds" do
   else
     service_name "ceph"
   end
-  action [ :enable, :start ]
+  action [:enable, :start]
   supports :restart => true
 end

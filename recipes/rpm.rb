@@ -12,8 +12,8 @@ when "rhel"
 end
 
 branch = node['ceph']['branch']
-if branch == "dev" and platform_family != "centos" and platform_family != "fedora"
-  raise "Dev branch for #{platform_family} is not yet supported"
+if branch == "dev" && platform_family != "centos" && platform_family != "fedora"
+  fail "Dev branch for #{platform_family} is not yet supported"
 end
 
 repo = node['ceph'][platform_family][branch]['repository']
@@ -31,7 +31,7 @@ if branch == "dev"
     "gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CEPH\n" \
     "EOF\n"
 else
-  #This is a stable or testing branch
+  # This is a stable or testing branch
   system "rpm -U #{node['ceph'][platform_family][branch]['repository']}"
 end
 

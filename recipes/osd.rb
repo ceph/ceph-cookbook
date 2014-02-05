@@ -71,7 +71,7 @@ else
     creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
   end
 
-  if is_crowbar?
+  if crowbar?
     ruby_block "select new disks for ceph osd" do
       block do
         do_trigger = false
@@ -81,7 +81,7 @@ else
 
             system 'ceph-disk-prepare', \
               "/dev/#{disk}"
-            raise 'ceph-disk-prepare failed' unless $?.exitstatus == 0
+            fail 'ceph-disk-prepare failed' unless $?.exitstatus == 0
 
             do_trigger = true
 
@@ -95,7 +95,7 @@ else
             "trigger", \
             "--subsystem-match=block", \
             "--action=add"
-          raise 'udevadm trigger failed' unless $?.exitstatus == 0
+          fail 'udevadm trigger failed' unless $?.exitstatus == 0
         end
 
       end
@@ -110,16 +110,15 @@ else
     # osd/$cluster-$id)
     #  - $cluster should always be ceph
     #  - The --dmcrypt option will be available starting w/ Cuttlefish
-    unless node["ceph"]["osd_devices"].nil?
-      node["ceph"]["osd_devices"].each_with_index do |osd_device,index|
-        if !osd_device["status"].nil?
+    if !node["ceph"]["osd_devices"].nil?
+      node["ceph"]["osd_devices"].each_with_index do |osd_device, index|
+        unless osd_device["status"].nil?
           Log.info("osd: osd_device #{osd_device} has already been setup.")
           next
         end
-        dmcrypt = ""
-        if osd_device["encrypted"] == true
-          dmcrypt = "--dmcrypt"
-        end
+
+        dmcrypt = osd_device["encrypted"] == true ? "--dmcrypt" : ""
+
         create_cmd = "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
         if osd_device["type"] == "directory"
           directory osd_device["device"] do
@@ -154,7 +153,7 @@ else
         else
           service_name "ceph"
         end
-        action [ :enable, :start ]
+        action [:enable, :start]
         supports :restart => true
       end
     else

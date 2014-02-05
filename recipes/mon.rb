@@ -37,17 +37,17 @@ directory "/var/lib/ceph/mon/ceph-#{node["hostname"]}" do
   action :create
 end
 
-# TODO cluster name
+# TODO: cluster name
 cluster = 'ceph'
 
 unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
   keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
 
-  monitor_secret = if node['ceph']['encrypted_data_bags']
+  if node['ceph']['encrypted_data_bags']
     secret = Chef::EncryptedDataBagItem.load_secret(node["ceph"]["mon"]["secret_file"])
-    Chef::EncryptedDataBagItem.load("ceph", "mon", secret)["secret"]
+    monitor_secret = Chef::EncryptedDataBagItem.load("ceph", "mon", secret)["secret"]
   else
-    node["ceph"]["monitor-secret"]
+    monitor_secret = node["ceph"]["monitor-secret"]
   end
 
   execute "format as keyring" do
@@ -62,7 +62,7 @@ unless File.exists?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
   ruby_block "finalise" do
     block do
       ["done", service_type].each do |ack|
-        File.open("/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{ack}", "w").close()
+        ::File.open("/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{ack}", "w").close
       end
     end
   end
@@ -76,7 +76,7 @@ if service_type == "upstart"
   service "ceph-mon-all" do
     provider Chef::Provider::Service::Upstart
     supports :status => true
-    action [ :enable, :start ]
+    action [:enable, :start]
   end
 end
 
@@ -89,10 +89,10 @@ service "ceph_mon" do
     service_name "ceph"
   end
   supports :restart => true, :status => true
-  action [ :enable, :start ]
+  action [:enable, :start]
 end
 
-get_mon_addresses().each do |addr|
+mon_addresses.each do |addr|
   execute "peer #{addr}" do
     command "ceph --admin-daemon '/var/run/ceph/ceph-mon.#{node['hostname']}.asok' add_bootstrap_peer_hint #{addr}"
     ignore_failure true
