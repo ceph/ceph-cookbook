@@ -32,7 +32,9 @@ end
 
 ruby_block "create mds client key" do
   block do
-    keyring = %x[ ceph auth get-or-create mds.#{node['hostname']} osd 'allow *' mon 'allow rwx' --name mon. --key='#{node["ceph"]["monitor-secret"]}' ]
+    cmd = "ceph auth get-or-create mds.#{node['hostname']} osd 'allow *' mon 'allow rwx' --name mon. --key='#{node["ceph"]["monitor-secret"]}'"
+    keyring = Mixlib::ShellOut.new(cmd).run_command.stdout
+
     keyfile = File.new("/var/lib/ceph/mds/#{cluster}-#{node['hostname']}/keyring", "w")
     keyfile.puts(keyring)
     keyfile.close

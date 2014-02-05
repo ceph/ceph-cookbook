@@ -35,9 +35,9 @@ when "fedora"
 when "suse"
   # (Open)SuSE default repositories
   # Chef doesn't make a difference between suse and opensuse
-  suse = %x[ head -n1 /etc/SuSE-release| awk '{print $1}' ].chomp.downcase # can be suse or opensuse
+  suse = Mixlib::ShellOut.new("head -n1 /etc/SuSE-release| awk '{print $1}'").run_command.stdout.chomp.downcase
   suse = "sles" if suse == "suse"
-  suse_version = suse << %x[ grep VERSION /etc/SuSE-release | awk -F'= ' '{print $2}' ].chomp
+  suse_version = suse << Mixlib::ShellOut.new("grep VERSION /etc/SuSE-release | awk -F'= ' '{print $2}'").run_command.stdout.chomp
 
   default['ceph']['suse']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/#{suse_version}/x86_64/ceph-release-1-0.#{suse_version}.noarch.rpm"
   default['ceph']['suse']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/#{suse_version}/x86_64/ceph-release-1-0.#{suse_version}.noarch.rpm"

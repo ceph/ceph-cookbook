@@ -40,7 +40,7 @@ end
 
 package 'cryptsetup' do
   action :upgrade
-  only_if { node[:dmcrypt] }
+  only_if { node['dmcrypt'] }
 end
 
 service_type = node["ceph"]["osd"]["init_style"]
@@ -72,33 +72,24 @@ else
   end
 
   if crowbar?
-    ruby_block "select new disks for ceph osd" do
-      block do
-        do_trigger = false
-        node["crowbar"]["disks"].each do |disk, data|
-          if node["crowbar"]["disks"][disk]["usage"] == "Storage"
-            puts "Disk: #{disk} should be used for ceph"
-
-            system 'ceph-disk-prepare', \
-              "/dev/#{disk}"
-            fail 'ceph-disk-prepare failed' unless $?.exitstatus == 0
-
-            do_trigger = true
-
-            node.set["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
-            node.save
-          end
-        end
-
-        if do_trigger
-          system 'udevadm', \
-            "trigger", \
-            "--subsystem-match=block", \
-            "--action=add"
-          fail 'udevadm trigger failed' unless $?.exitstatus == 0
-        end
-
+    node["crowbar"]["disks"].each do |disk, data|
+      execute "ceph-disk-prepare #{disk}" do
+        command "ceph-disk-prepare /dev/#{disk}"
+        only_if { node["crowbar"]["disks"][disk]["usage"] == "Storage" }
+        notifies :run, "execute[udev trigger]", :immediately
       end
+
+      ruby_block "set disk usage for #{disk}" do
+        block do
+          node.set["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
+          node.save
+        end
+      end
+    end
+
+    execute "udev trigger" do
+      command "udevadm trigger --subsystem-match=block --action=add"
+      action :nothing
     end
   else
     # Calling ceph-disk-prepare is sufficient for deploying an OSD
