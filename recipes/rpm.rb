@@ -3,7 +3,7 @@ platform_family = node['platform_family']
 case platform_family
 when "rhel"
   if node['ceph']['el_add_epel'] == true
-    include_recipe "yum_epel"
+    include_recipe "yum-epel"
   end
 end
 
