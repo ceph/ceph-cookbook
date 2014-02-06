@@ -83,7 +83,7 @@ def quorum_members_ips
 end
 
 QUORUM_STATES = %w(leader, peon)
-def have_quorum?
+def quorum?
   # "ceph auth get-or-create-key" would hang if the monitor wasn't
   # in quorum yet, which is highly likely on the first run. This
   # helper lets us delay the key generation into the next

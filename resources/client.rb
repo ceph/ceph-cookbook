@@ -16,4 +16,4 @@ attribute :keyname, :kind_of => String
 # defaults to /etc/ceph/ceph.client.#{name}.#{hostname}.secret if not as_keyring
 attribute :filename, :kind_of => String
 
-attr_accessor :exists
+attr_accessor :key, :caps_match
