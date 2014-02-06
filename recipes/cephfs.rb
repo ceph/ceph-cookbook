@@ -25,7 +25,7 @@ filename = "/etc/ceph/ceph.client.#{client_name}.secret"
 
 ceph_client name do
   filename filename
-  caps ({ "mon" => "allow r", "osd" => "allow rw", "mds" => "allow" })
+  caps({ "mon" => "allow r", "osd" => "allow rw", "mds" => "allow" })
   as_keyring false
 end
 

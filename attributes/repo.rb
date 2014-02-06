@@ -4,6 +4,7 @@ default['ceph']['version'] = "dumpling"
 default['ceph']['el_add_epel'] = true
 default['ceph']['repo_url'] = "http://ceph.com"
 default['ceph']['extras_repo_url'] = "http://ceph.com/packages/ceph-extras"
+default['ceph']['extras_repo'] = false
 
 case node['platform_family']
 when "debian"

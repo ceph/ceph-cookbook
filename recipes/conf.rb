@@ -1,8 +1,6 @@
 fail "fsid must be set in config" if node["ceph"]["config"]['fsid'].nil?
 fail "mon_initial_members must be set in config" if node["ceph"]["config"]['mon_initial_members'].nil?
 
-is_rgw = node['roles'].include?('ceph-radosgw')
-
 directory "/etc/ceph" do
   owner "root"
   group "root"
@@ -14,7 +12,7 @@ template '/etc/ceph/ceph.conf' do
   source 'ceph.conf.erb'
   variables(
     :mon_addresses => mon_addresses,
-    :is_rgw => is_rgw
+    :is_rgw => node['ceph']['is_radosgw']
   )
   mode '0644'
 end

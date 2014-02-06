@@ -17,6 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+node.default['ceph']['is_radosgw'] = true
+
 case node['platform_family']
 when "debian"
   packages = %w{
@@ -49,7 +51,7 @@ if !::File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done"
   end
 
   ceph_client "radosgw" do
-    caps ({ "mon" => "allow rw", "osd" => "allow rwx" })
+    caps({ "mon" => "allow rw", "osd" => "allow rwx" })
   end
 
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
