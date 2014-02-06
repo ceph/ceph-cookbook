@@ -100,7 +100,11 @@ else
   #  - $cluster should always be ceph
   #  - The --dmcrypt option will be available starting w/ Cuttlefish
   if !node["ceph"]["osd_devices"].nil?
-    node["ceph"]["osd_devices"].each_with_index do |osd_device, index|
+    devices = node["ceph"]["osd_devices"]
+
+    devices = Hash[(0...devices.size).zip devices] unless devices.kind_of? Hash
+
+    devices.each do |osd_device, index|
       unless osd_device["status"].nil?
         Log.info("osd: osd_device #{osd_device} has already been setup.")
         next
