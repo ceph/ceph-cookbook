@@ -1,8 +1,9 @@
+
 include_recipe "apt"
 
 branch = node['ceph']['branch']
 
-apt_repository "ceph-#{branch}" do
+apt_repository "ceph" do
   repo_name "ceph"
   uri node['ceph']['debian'][branch]['repository']
   distribution node['lsb']['codename'] == "jessie" ? "sid" : node['lsb']['codename']
@@ -10,11 +11,20 @@ apt_repository "ceph-#{branch}" do
   key node['ceph']['debian'][branch]['repository_key']
 end
 
-if node['roles'].include?("ceph-radosgw") \
+apt_repository "ceph-extras" do
+  repo_name "ceph-extras"
+  uri node['ceph']['debian']['extras']['repository']
+  distribution node['lsb']['codename'] == "jessie" ? "sid" : node['lsb']['codename']
+  components ['main']
+  key node['ceph']['debian']['extras']['repository_key']
+  only_if { node['ceph']['extras_repo'] }
+end
+
+if node['ceph']['is_radosgw'] \
  && node["ceph"]["radosgw"]["webserver_companion"] == "apache2" \
  && node["ceph"]["radosgw"]["use_apache_fork"] == true
   case node['lsb']['codename']
-  when "precise","oneiric"
+  when "precise", "oneiric"
     apt_repository "ceph-apache2" do
       repo_name "ceph-apache2"
       uri "http://gitbuilder.ceph.com/apache2-deb-#{node['lsb']['codename']}-x86_64-basic/ref/master"

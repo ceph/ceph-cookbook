@@ -17,6 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+node.default['ceph']['is_radosgw'] = true
+
 case node['platform_family']
 when "debian"
   packages = %w{
@@ -29,7 +31,7 @@ when "debian"
     }
     packages += packages_dbg
   end
-when "rhel","fedora","suse"
+when "rhel", "fedora", "suse"
   packages = %w{
     ceph-radosgw
   }
@@ -43,18 +45,13 @@ end
 
 include_recipe "ceph::conf"
 
-unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
+if !::File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
   if node["ceph"]["radosgw"]["webserver_companion"]
     include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
   end
 
-  ruby_block "create rados gateway client key" do
-    block do
-      keyring = %x[ ceph auth get-or-create client.radosgw.#{node['hostname']} osd 'allow rwx' mon 'allow rw' --name mon. --key='#{node["ceph"]["monitor-secret"]}' ]
-      keyfile = File.new("/etc/ceph/ceph.client.radosgw.#{node['hostname']}.keyring", "w")
-      keyfile.puts(keyring)
-      keyfile.close
-    end
+  ceph_client "radosgw" do
+    caps("mon" => "allow rw", "osd" => "allow rwx")
   end
 
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
@@ -74,7 +71,7 @@ unless File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done
       end
     end
     supports :restart => true
-    action [ :enable, :start ]
+    action [:enable, :start]
   end
 else
   Log.info("Rados Gateway already deployed")
