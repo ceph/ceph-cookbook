@@ -104,7 +104,7 @@ else
 
     devices = Hash[(0...devices.size).zip devices] unless devices.kind_of? Hash
 
-    devices.each do |osd_device, index|
+    devices.each do |index, osd_device|
       unless osd_device["status"].nil?
         Log.info("osd: osd_device #{osd_device} has already been setup.")
         next
