@@ -110,22 +110,25 @@ else
         next
       end
 
-      dmcrypt = osd_device["encrypted"] == true ? "--dmcrypt" : ""
+      directory osd_device["device"] do # ~FC022
+        owner "root"
+        group "root"
+        recursive true
+        only_if { osd_device["type"] == "directory" }
+      end
 
-      create_cmd = "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
-      if osd_device["type"] == "directory"
-        directory osd_device["device"] do
-          owner "root"
-          group "root"
-          recursive true
-        end
-        create_cmd << " && ceph-disk-activate #{osd_device['device']}"
-      end
-      execute "Creating Ceph OSD on #{osd_device['device']}" do
-        command create_cmd
+      dmcrypt = osd_device["encrypted"] == true ? '--dmcrypt' : ''
+
+      execute "ceph-disk-prepare on #{osd_device['device']}" do
+        command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
         action :run
-        notifies :create, "ruby_block[save osd_device status #{index}]"
+        notifies :create, "ruby_block[save osd_device status #{index}]", :immediately
       end
+
+      execute "ceph-disk-activate #{osd_device['device']}" do
+        only_if { osd_device["type"] == "directory" }
+      end
+
       # we add this status to the node env
       # so that we can implement recreate
       # and/or delete functionalities in the
