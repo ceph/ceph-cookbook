@@ -1,30 +1,30 @@
 [global]
-  fsid =  <%= node["ceph"]["config"]["fsid"] %>
+  fsid = <%= node["ceph"]["config"]["fsid"] %>
   mon initial members = <%= node["ceph"]["config"]["mon_initial_members"] %>
   mon host = <%= @mon_addresses.join(', ') %>
 <% if (! node['ceph']['config']['global'].nil?) -%>
-  <% node['ceph']['config']['global'].each do |k, v| %>
+  <% node['ceph']['config']['global'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
   <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['osd'].nil?) -%>
 [osd]
-  <% node['ceph']['config']['osd'].each do |k, v| %>
+  <% node['ceph']['config']['osd'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
   <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['mon'].nil?) -%>
 [mon]
-  <% node['ceph']['config']['mon'].each do |k, v| %>
+  <% node['ceph']['config']['mon'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
   <% end %>
 <% end -%>
 
 <% if (! node['ceph']['config']['mds'].nil?) -%>
 [mds]
-  <% node['ceph']['config']['mds'].each do |key, value| -%>
+  <% node['ceph']['config']['mds'].sort.each do |key, value| -%>
   <%= key %> = <%= value %>
   <%   end -%>
 <% end -%>
@@ -36,15 +36,15 @@
   keyring = /etc/ceph/ceph.client.radosgw.<%= node['hostname'] %>.keyring
   log file = /var/log/ceph/radosgw.log
 <% if (! node['ceph']['config']['rgw'].nil?) -%>
-  <% node['ceph']['config']['rgw'].each do |k, v| %>
+  <% node['ceph']['config']['rgw'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
   <% end %>
 <% end -%>
 <% end -%>
 
-<% node['ceph']['config-sections'].each do |name, sect| %>
+<% node['ceph']['config-sections'].sort.each do |name, sect| %>
 [<%= name %>]
-  <% sect.each do |k, v| %>
+  <% sect.sort.each do |k, v| %>
   <%= k %> = <%= v %>
   <% end %>
 <% end %>
