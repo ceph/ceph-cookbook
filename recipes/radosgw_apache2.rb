@@ -60,7 +60,7 @@ end
   end
 end
 
-file "/var/log/ceph/radosgw.log" do
+file "/var/log/radosgw/radosgw.log" do
   owner d_owner
   group d_group
   mode "0644"
