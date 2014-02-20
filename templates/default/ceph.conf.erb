@@ -1,7 +1,7 @@
 [global]
   fsid = <%= node["ceph"]["config"]["fsid"] %>
   mon initial members = <%= node["ceph"]["config"]["mon_initial_members"] %>
-  mon host = <%= @mon_addresses.join(', ') %>
+  mon host = <%= @mon_addresses.sort.join(', ') %>
 <% if (! node['ceph']['config']['global'].nil?) -%>
   <% node['ceph']['config']['global'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
