@@ -12,6 +12,7 @@ action :add do
     converge_by("Set caps for #{@new_resource}") do
       auth_set_key(keyname, caps)
     end
+    @current_resource.key = get_key(@current_resource.keyname)
   end
 
   file filename do
