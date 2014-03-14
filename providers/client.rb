@@ -71,6 +71,7 @@ def auth_set_key(keyname, caps)
     # delete an old key if it exists and is wrong
     Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
     # try to create again
+    get_or_create = Mixlib::ShellOut.new(cmd)
     get_or_create.run_command
   end
   get_or_create.error!
