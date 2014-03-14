@@ -24,24 +24,24 @@ when 'debian'
   packages = %w(
     ceph
     ceph-common
-)
+  )
 
   if node['ceph']['install_debug']
     packages_dbg = %w(
       ceph-dbg
       ceph-common-dbg
-)
+    )
     packages += packages_dbg
   end
 when 'rhel', 'fedora'
   packages = %w(
     ceph
-)
+  )
 
   if node['ceph']['install_debug']
     packages_dbg = %w(
       ceph-debug
-)
+    )
     packages += packages_dbg
   end
 end

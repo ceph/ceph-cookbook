@@ -23,11 +23,11 @@ case node['platform_family']
 when 'debian'
   packages = %w(
     tgt
-)
+  )
 when 'rhel', 'fedora'
   packages = %w(
     scsi-target-utils
-)
+  )
 end
 
 packages.each do |pkg|

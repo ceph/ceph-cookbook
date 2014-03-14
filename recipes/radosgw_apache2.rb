@@ -22,12 +22,12 @@ when 'debian', 'suse'
   packages = %w(
     apache2
     libapache2-mod-fastcgi
-)
+  )
 when 'rhel', 'fedora'
   packages = %w(
     httpd
     mod_fastcgi
-)
+  )
 end
 
 packages.each do |pkg|
