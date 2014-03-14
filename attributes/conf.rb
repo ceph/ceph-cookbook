@@ -1,2 +1,2 @@
-default["ceph"]["config"] = {}
-default["ceph"]["config-sections"] = {}
+default['ceph']['config'] = {}
+default['ceph']['config-sections'] = {}

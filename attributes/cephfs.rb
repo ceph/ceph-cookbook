@@ -1,1 +1,1 @@
-default["ceph"]["cephfs_mount"] = "/ceph"
+default['ceph']['cephfs_mount'] = '/ceph'

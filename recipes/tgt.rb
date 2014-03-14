@@ -20,14 +20,14 @@
 node.default['ceph']['extras_repo'] = true
 
 case node['platform_family']
-when "debian"
-  packages = %w{
+when 'debian'
+  packages = %w(
     tgt
-  }
-when "rhel", "fedora"
-  packages = %w{
+)
+when 'rhel', 'fedora'
+  packages = %w(
     scsi-target-utils
-  }
+)
 end
 
 packages.each do |pkg|
@@ -36,15 +36,15 @@ packages.each do |pkg|
   end
 end
 
-include_recipe "ceph::conf"
+include_recipe 'ceph::conf'
 # probably needs the key
-service "tgt" do
-  if node['platform'] == "ubuntu"
+service 'tgt' do
+  if node['platform'] == 'ubuntu'
     # The ceph version of tgt does not provide an Upstart script
     provider Chef::Provider::Service::Init::Debian
-    service_name "tgt"
+    service_name 'tgt'
   else
-    service_name "tgt"
+    service_name 'tgt'
   end
   supports :restart => true
   action [:enable, :start]
