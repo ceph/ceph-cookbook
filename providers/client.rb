@@ -9,6 +9,9 @@ action :add do
   filename = @current_resource.filename
   keyname = @current_resource.keyname
   caps = @new_resource.caps.map { |k, v| "#{k} '#{v}'" }.join(' ')
+  owner = @new_resource.owner
+  group = @new_resource.group
+  mode = @new_resource.mode
   if ! @current_resource.caps_match
     converge_by("Set caps for #{@new_resource}") do
       auth_set_key(keyname, caps)
@@ -17,18 +20,18 @@ action :add do
       # update the key in the file
       file filename do
         content file_content
-        owner 'root'
-        group 'root'
-        mode '640'
+        owner owner
+        group group
+        mode mode
       end
     end
   else
     # make sure the file matches what the cluster thinks
     file filename do
       content file_content
-      owner 'root'
-      group 'root'
-      mode '640'
+      owner owner
+      group group
+      mode mode
     end
   end
 
