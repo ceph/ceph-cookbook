@@ -9,7 +9,7 @@ def get_mon_nodes(extra_search = nil)
   if crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     unless mon_roles.empty?
-      search_string = mon_roles.map { |role_object| "roles:" + role_object.name }.join(' OR ')
+      search_string = mon_roles.map { |role_object| 'roles:' + role_object.name }.join(' OR ')
       search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
     end
   else
@@ -31,11 +31,11 @@ end
 def find_node_ip_in_network(network, nodeish = nil)
   nodeish = node unless nodeish
   net = IPAddr.new(network)
-  nodeish["network"]["interfaces"].each do |iface, addrs|
-    addrs["addresses"].each do |ip, params|
-      if params['family'].eql?("inet6") && net.include?(ip)
+  nodeish['network']['interfaces'].each do |iface, addrs|
+    addrs['addresses'].each do |ip, params|
+      if params['family'].eql?('inet6') && net.include?(ip)
         return "[#{ip}]:6789"
-      elsif params['family'].eql?("inet") && net.include?(ip)
+      elsif params['family'].eql?('inet') && net.include?(ip)
         return "#{ip}:6789"
       end
     end
@@ -46,7 +46,7 @@ end
 def mon_addresses
   mon_ips = []
 
-  if File.exists?("/var/run/ceph/ceph-mon.#{node['hostname']}.asok")
+  if File.exist?("/var/run/ceph/ceph-mon.#{node['hostname']}.asok")
     mon_ips = quorum_members_ips
   else
     mons = []
@@ -57,12 +57,12 @@ def mon_addresses
 
     mons += get_mon_nodes
     if crowbar?
-      mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address }
+      mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, 'admin').address }
     else
       if node['ceph']['config']['global'] && node['ceph']['config']['global']['public network']
         mon_ips = mons.map { |nodeish| find_node_ip_in_network(node['ceph']['config']['global']['public network'], nodeish) }
       else
-        mon_ips = mons.map { |node| node['ipaddress'] + ":6789" }
+        mon_ips = mons.map { |node| node['ipaddress'] + ':6789' }
       end
     end
   end

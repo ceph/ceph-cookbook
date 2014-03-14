@@ -1,16 +1,28 @@
 AllCops:
+  Includes:
+    - Berksfile
+    - Gemfile
+    - Rakefile
+    - Thorfile
+    - Guardfile
   Excludes:
     - vendor/**
 
-AlignParameters:
+ClassLength:
+  Enabled: false
+Documentation:
   Enabled: false
 Encoding:
   Enabled: false
 HashSyntax:
   Enabled: false
-StringLiterals:
-  Enabled: false
 LineLength:
   Enabled: false
 MethodLength:
-  Max: 30
+  Enabled: false
+SignalException:
+  Enabled: false
+TrailingComma:
+  Enabled: false
+WordArray:
+  Enabled: false

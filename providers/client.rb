@@ -16,9 +16,9 @@ action :add do
 
   file filename do
     content file_content
-    owner "root"
-    group "root"
-    mode "640"
+    owner 'root'
+    group 'root'
+    mode '640'
   end
 end
 
@@ -53,21 +53,21 @@ end
 
 def auth_set_key(keyname, caps)
   # find the monitor secret
-  mon_secret = ""
+  mon_secret = ''
   mons = get_mon_nodes
   if !mons.empty?
-    mon_secret = mons[0]["ceph"]["monitor-secret"]
-  elsif mons.empty? && node["ceph"]["monitor-secret"]
-    mon_secret = node["ceph"]["monitor-secret"]
+    mon_secret = mons[0]['ceph']['monitor-secret']
+  elsif mons.empty? && node['ceph']['monitor-secret']
+    mon_secret = node['ceph']['monitor-secret']
   else
-    Chef::Log.warn("No monitor secret found")
+    Chef::Log.warn('No monitor secret found')
   end
   # try to add the key
   cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{mon_secret}'"
   get_or_create = Mixlib::ShellOut.new(cmd)
   get_or_create.run_command
   if get_or_create.stderr.scan(/EINVAL.*but cap.*does not match/)
-    Chef::Log.info("Deleting old key with incorrect caps")
+    Chef::Log.info('Deleting old key with incorrect caps')
     # delete an old key if it exists and is wrong
     Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
     # try to create again

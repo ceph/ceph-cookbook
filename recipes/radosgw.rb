@@ -20,21 +20,21 @@
 node.default['ceph']['is_radosgw'] = true
 
 case node['platform_family']
-when "debian"
-  packages = %w{
+when 'debian'
+  packages = %w(
     radosgw
-  }
+)
 
   if node['ceph']['install_debug']
-    packages_dbg = %w{
+    packages_dbg = %w(
       radosgw-dbg
-    }
+)
     packages += packages_dbg
   end
-when "rhel", "fedora", "suse"
-  packages = %w{
+when 'rhel', 'fedora', 'suse'
+  packages = %w(
     ceph-radosgw
-  }
+)
 end
 
 packages.each do |pkg|
@@ -43,36 +43,36 @@ packages.each do |pkg|
   end
 end
 
-include_recipe "ceph::conf"
+include_recipe 'ceph::conf'
 
 if !::File.exists?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
-  if node["ceph"]["radosgw"]["webserver_companion"]
+  if node['ceph']['radosgw']['webserver_companion']
     include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
   end
 
-  ceph_client "radosgw" do
-    caps("mon" => "allow rw", "osd" => "allow rwx")
+  ceph_client 'radosgw' do
+    caps('mon' => 'allow rw', 'osd' => 'allow rwx')
   end
 
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
     action :create
   end
 
-  service "radosgw" do
-    case node["ceph"]["radosgw"]["init_style"]
-    when "upstart"
-      service_name "radosgw-all-starter"
+  service 'radosgw' do
+    case node['ceph']['radosgw']['init_style']
+    when 'upstart'
+      service_name 'radosgw-all-starter'
       provider Chef::Provider::Service::Upstart
     else
-      if node['platform'] == "debian"
-        service_name "radosgw"
+      if node['platform'] == 'debian'
+        service_name 'radosgw'
       else
-        service_name "ceph-radosgw"
+        service_name 'ceph-radosgw'
       end
     end
     supports :restart => true
     action [:enable, :start]
   end
 else
-  Log.info("Rados Gateway already deployed")
+  Log.info('Rados Gateway already deployed')
 end

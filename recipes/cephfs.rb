@@ -17,24 +17,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe "ceph::conf"
+include_recipe 'ceph::conf'
 
-name = "cephfs"
+name = 'cephfs'
 client_name = "cephfs.#{node['hostname']}"
 filename = "/etc/ceph/ceph.client.#{client_name}.secret"
 
 ceph_client name do
   filename filename
-  caps("mon" => "allow r", "osd" => "allow rw", "mds" => "allow")
+  caps('mon' => 'allow r', 'osd' => 'allow rw', 'mds' => 'allow')
   as_keyring false
 end
 
-mons = mon_addresses.join(",") + ":/"
+mons = mon_addresses.join(',') + ':/'
 
 directory node['ceph']['cephfs_mount']
 
 mount node['ceph']['cephfs_mount'] do
-  fstype "ceph"
+  fstype 'ceph'
   device mons
   options "_netdev,name=#{client_name},secretfile=#{filename}"
   dump 0

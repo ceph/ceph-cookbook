@@ -31,8 +31,8 @@
 #   }
 # ]
 
-include_recipe "ceph::default"
-include_recipe "ceph::conf"
+include_recipe 'ceph::default'
+include_recipe 'ceph::conf'
 
 package 'gdisk' do
   action :upgrade
@@ -43,50 +43,50 @@ package 'cryptsetup' do
   only_if { node['dmcrypt'] }
 end
 
-service_type = node["ceph"]["osd"]["init_style"]
-mons = node['ceph']['encrypted_data_bags'] ? get_mon_nodes : get_mon_nodes("ceph_bootstrap_osd_key:*")
+service_type = node['ceph']['osd']['init_style']
+mons = node['ceph']['encrypted_data_bags'] ? get_mon_nodes : get_mon_nodes('ceph_bootstrap_osd_key:*')
 
-return "No ceph-mon found." if mons.empty?
+return 'No ceph-mon found.' if mons.empty?
 
-directory "/var/lib/ceph/bootstrap-osd" do
-  owner "root"
-  group "root"
-  mode "0755"
+directory '/var/lib/ceph/bootstrap-osd' do
+  owner 'root'
+  group 'root'
+  mode '0755'
 end
 
 # TODO: cluster name
 cluster = 'ceph'
 
 if node['ceph']['encrypted_data_bags']
-  secret = Chef::EncryptedDataBagItem.load_secret(node["ceph"]["osd"]["secret_file"])
-  osd_secret = Chef::EncryptedDataBagItem.load("ceph", "osd", secret)["secret"]
+  secret = Chef::EncryptedDataBagItem.load_secret(node['ceph']['osd']['secret_file'])
+  osd_secret = Chef::EncryptedDataBagItem.load('ceph', 'osd', secret)['secret']
 else
-  osd_secret = mons[0]["ceph"]["bootstrap_osd_key"]
+  osd_secret = mons[0]['ceph']['bootstrap_osd_key']
 end
 
-execute "format as keyring" do
+execute 'format as keyring' do
   command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{osd_secret}'"
   creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
 end
 
 if crowbar?
-  node["crowbar"]["disks"].each do |disk, data|
+  node['crowbar']['disks'].each do |disk, data|
     execute "ceph-disk-prepare #{disk}" do
       command "ceph-disk-prepare /dev/#{disk}"
-      only_if { node["crowbar"]["disks"][disk]["usage"] == "Storage" }
-      notifies :run, "execute[udev trigger]", :immediately
+      only_if { node['crowbar']['disks'][disk]['usage'] == 'Storage' }
+      notifies :run, 'execute[udev trigger]', :immediately
     end
 
     ruby_block "set disk usage for #{disk}" do
       block do
-        node.set["crowbar"]["disks"][disk]["usage"] = "ceph-osd"
+        node.set['crowbar']['disks'][disk]['usage'] = 'ceph-osd'
         node.save
       end
     end
   end
 
-  execute "udev trigger" do
-    command "udevadm trigger --subsystem-match=block --action=add"
+  execute 'udev trigger' do
+    command 'udevadm trigger --subsystem-match=block --action=add'
     action :nothing
   end
 else
@@ -99,25 +99,25 @@ else
   # osd/$cluster-$id)
   #  - $cluster should always be ceph
   #  - The --dmcrypt option will be available starting w/ Cuttlefish
-  if !node["ceph"]["osd_devices"].nil?
-    devices = node["ceph"]["osd_devices"]
+  if !node['ceph']['osd_devices'].nil?
+    devices = node['ceph']['osd_devices']
 
     devices = Hash[(0...devices.size).zip devices] unless devices.kind_of? Hash
 
     devices.each do |index, osd_device|
-      unless osd_device["status"].nil?
+      unless osd_device['status'].nil?
         Log.info("osd: osd_device #{osd_device} has already been setup.")
         next
       end
 
-      directory osd_device["device"] do # ~FC022
-        owner "root"
-        group "root"
+      directory osd_device['device'] do # ~FC022
+        owner 'root'
+        group 'root'
         recursive true
-        only_if { osd_device["type"] == "directory" }
+        only_if { osd_device['type'] == 'directory' }
       end
 
-      dmcrypt = osd_device["encrypted"] == true ? '--dmcrypt' : ''
+      dmcrypt = osd_device['encrypted'] == true ? '--dmcrypt' : ''
 
       execute "ceph-disk-prepare on #{osd_device['device']}" do
         command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
@@ -126,7 +126,7 @@ else
       end
 
       execute "ceph-disk-activate #{osd_device['device']}" do
-        only_if { osd_device["type"] == "directory" }
+        only_if { osd_device['type'] == 'directory' }
       end
 
       # we add this status to the node env
@@ -135,19 +135,19 @@ else
       # future.
       ruby_block "save osd_device status #{index}" do
         block do
-          node.normal["ceph"]["osd_devices"][index]["status"] = "deployed"
+          node.normal['ceph']['osd_devices'][index]['status'] = 'deployed'
           node.save
         end
         action :nothing
       end
     end
-    service "ceph_osd" do
+    service 'ceph_osd' do
       case service_type
-      when "upstart"
-        service_name "ceph-osd-all-starter"
+      when 'upstart'
+        service_name 'ceph-osd-all-starter'
         provider Chef::Provider::Service::Upstart
       else
-        service_name "ceph"
+        service_name 'ceph'
       end
       action [:enable, :start]
       supports :restart => true

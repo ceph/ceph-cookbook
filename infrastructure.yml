@@ -1,0 +1,6 @@
+roles:
+- ceph-mds:
+- ceph-mon:
+- ceph-osd:
+- ceph-radosgw:
+- ceph-tgt:
