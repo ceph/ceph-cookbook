@@ -5,22 +5,33 @@ def whyrun_supported?
 end
 
 action :add do
+  current_resource = @current_resource
   filename = @current_resource.filename
   keyname = @current_resource.keyname
   caps = @new_resource.caps.map { |k, v| "#{k} '#{v}'" }.join(' ')
-  unless @current_resource.caps_match
+  if ! @current_resource.caps_match
     converge_by("Set caps for #{@new_resource}") do
       auth_set_key(keyname, caps)
+      current_resource.key = get_key(keyname)
+
+      # update the key in the file
+      file filename do
+        content file_content
+        owner 'root'
+        group 'root'
+        mode '640'
+      end
     end
-    @current_resource.key = get_key(@current_resource.keyname)
+  else
+    # make sure the file matches what the cluster thinks
+    file filename do
+      content file_content
+      owner 'root'
+      group 'root'
+      mode '640'
+    end
   end
 
-  file filename do
-    content file_content
-    owner 'root'
-    group 'root'
-    mode '640'
-  end
 end
 
 def load_current_resource
@@ -40,37 +51,28 @@ def file_content
 end
 
 def get_key(keyname)
-  cmd = "ceph auth print_key #{keyname}"
+  cmd = "ceph auth print_key #{keyname} --name mon. --key='#{mon_secret}'"
   Mixlib::ShellOut.new(cmd).run_command.stdout
 end
 
 def get_caps(keyname)
   caps = {}
-  cmd = "ceph auth get #{keyname}"
+  cmd = "ceph auth get #{keyname} --name mon. --key='#{mon_secret}'"
   output = Mixlib::ShellOut.new(cmd).run_command.stdout
   output.scan(/caps\s*(\S+)\s*=\s*"([^"]*)"/) { |k, v| caps[k] = v }
   caps
 end
 
 def auth_set_key(keyname, caps)
-  # find the monitor secret
-  mon_secret = ''
-  mons = get_mon_nodes
-  if !mons.empty?
-    mon_secret = mons[0]['ceph']['monitor-secret']
-  elsif mons.empty? && node['ceph']['monitor-secret']
-    mon_secret = node['ceph']['monitor-secret']
-  else
-    Chef::Log.warn('No monitor secret found')
-  end
+  secret = mon_secret
   # try to add the key
-  cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{mon_secret}'"
+  cmd = "ceph auth get-or-create #{keyname} #{caps} --name mon. --key='#{secret}'"
   get_or_create = Mixlib::ShellOut.new(cmd)
   get_or_create.run_command
   if get_or_create.stderr.scan(/EINVAL.*but cap.*does not match/)
     Chef::Log.info('Deleting old key with incorrect caps')
     # delete an old key if it exists and is wrong
-    Mixlib::ShellOut.new("ceph auth del #{keyname}").run_command
+    Mixlib::ShellOut.new("ceph auth del #{keyname} --name mon. --key='#{secret}'").run_command
     # try to create again
     get_or_create = Mixlib::ShellOut.new(cmd)
     get_or_create.run_command

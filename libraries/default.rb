@@ -69,6 +69,20 @@ def mon_addresses
   mon_ips.reject { |m| m.nil? }.uniq
 end
 
+def mon_secret
+  # find the monitor secret
+  mon_secret = ''
+  mons = get_mon_nodes
+  if !mons.empty?
+    mon_secret = mons[0]['ceph']['monitor-secret']
+  elsif mons.empty? && node['ceph']['monitor-secret']
+    mon_secret = node['ceph']['monitor-secret']
+  else
+    Chef::Log.warn('No monitor secret found')
+  end
+  mon_secret
+end
+
 def quorum_members_ips
   mon_ips = []
   cmd = Mixlib::ShellOut.new("ceph --admin-daemon /var/run/ceph/ceph-mon.#{node['hostname']}.asok mon_status")
