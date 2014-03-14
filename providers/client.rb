@@ -30,7 +30,7 @@ def load_current_resource
   @current_resource.caps(get_caps(@current_resource.keyname))
   default_filename = "/etc/ceph/ceph.client.#{@new_resource.name}.#{node['hostname']}.#{@new_resource.as_keyring ? "keyring" : "secret"}"
   @current_resource.filename(@new_resource.filename || default_filename)
-  @current_resource.key(get_new_key(@current_resource.keyname))
+  @current_resource.key = get_key(@current_resource.keyname)
   @current_resource.caps_match = true if @current_resource.caps == @new_resource.caps
 end
 
@@ -38,7 +38,7 @@ def file_content
   @current_resource.as_keyring ? "[#{@current_resource.keyname}]\n\tkey = #{@current_resource.key}\n" : @current_resource.key
 end
 
-def get_new_key(keyname)
+def get_key(keyname)
   cmd = "ceph auth print_key #{keyname}"
   Mixlib::ShellOut.new(cmd).run_command.stdout
 end
