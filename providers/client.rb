@@ -12,27 +12,19 @@ action :add do
   owner = @new_resource.owner
   group = @new_resource.group
   mode = @new_resource.mode
-  if ! @current_resource.caps_match
+  unless @current_resource.caps_match
     converge_by("Set caps for #{@new_resource}") do
       auth_set_key(keyname, caps)
       current_resource.key = get_key(keyname)
 
-      # update the key in the file
-      file filename do
-        content file_content
-        owner owner
-        group group
-        mode mode
-      end
     end
-  else
-    # make sure the file matches what the cluster thinks
-    file filename do
-      content file_content
-      owner owner
-      group group
-      mode mode
-    end
+  end
+  # update the key in the file
+  file filename do
+    content file_content
+    owner owner
+    group group
+    mode mode
   end
 
 end
