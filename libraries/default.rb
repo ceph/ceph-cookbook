@@ -41,7 +41,13 @@ def find_node_ip_in_network(network, nodeish = nil)
 end
 
 def ip_address_in_network?(ip, params, net)
-  ['inet', 'inet6'].include?(params['family']) && net.include?(ip)
+  if params['family'] == 'inet'
+    net.include?(ip) && params.key?('broadcast')     # is primary ip on iface
+  elsif params['family'] == 'inet6'
+    net.include?(ip)
+  else
+    false
+  end
 end
 
 def ip_address_to_ceph_address(ip, params)
