@@ -16,4 +16,9 @@ attribute :keyname, :kind_of => String
 # defaults to /etc/ceph/ceph.client.#{name}.#{hostname}.secret if not as_keyring
 attribute :filename, :kind_of => String
 
+# key file access creds
+attribute :owner, :kind_of => String, :default => 'root'
+attribute :group, :kind_of => String, :default => 'root'
+attribute :mode, :kind_of => [Integer, String], :default => '00640'
+
 attr_accessor :key, :caps_match
