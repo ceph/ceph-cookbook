@@ -5,7 +5,7 @@ gem 'berkshelf', '~> 2.0.10'
 
 group :test do
   gem 'foodcritic', '~> 3.0'
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.20'
 end
 
 group :integration do
