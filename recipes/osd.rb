@@ -99,7 +99,7 @@ else
   # osd/$cluster-$id)
   #  - $cluster should always be ceph
   #  - The --dmcrypt option will be available starting w/ Cuttlefish
-  if !node['ceph']['osd_devices'].nil?
+  if node['ceph']['osd_devices']
     devices = node['ceph']['osd_devices']
 
     devices = Hash[(0...devices.size).zip devices] unless devices.kind_of? Hash
