@@ -34,7 +34,7 @@
   host = <%= node['hostname'] %>
   rgw socket path = /var/run/ceph/radosgw.<%= node['hostname'] %>
   keyring = /etc/ceph/ceph.client.radosgw.<%= node['hostname'] %>.keyring
-  log file = /var/log/radosgw/radosgw.log
+  log file = /var/log/ceph/radosgw.log
 <% if (! node['ceph']['config']['rgw'].nil?) -%>
   <% node['ceph']['config']['rgw'].sort.each do |k, v| %>
   <%= k %> = <%= v %>
