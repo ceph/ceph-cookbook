@@ -60,13 +60,6 @@ end
   end
 end
 
-directory '/var/log/radosgw' do
-  owner d_owner
-  group d_group
-  mode '0755'
-  action :create
-end
-
 file '/var/log/radosgw/radosgw.log' do
   owner d_owner
   group d_group
