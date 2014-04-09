@@ -99,10 +99,9 @@ mon_addresses.each do |addr|
   end
 end
 
-# The key is going to be automatically
-# created,
-# We store it when it is created
-unless node['ceph']['encrypted_data_bags']
+# The key is going to be automatically created, We store it when it is created
+# If we're storing keys in encrypted data bags, then they've already been generated above
+if use_cephx? && !node['ceph']['encrypted_data_bags']
   ruby_block 'get osd-bootstrap keyring' do
     block do
       run_out = ''
