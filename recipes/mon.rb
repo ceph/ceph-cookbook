@@ -14,12 +14,13 @@
 #  different and are created in
 #  /var/lib/ceph/bootstrap-{osd,mds}/ceph.keyring
 
+node.default['ceph']['is_mon'] = true
+
+include_recipe 'ceph::_common'
 include_recipe 'ceph::default'
 include_recipe 'ceph::conf'
 
 service_type = node['ceph']['mon']['init_style']
-
-node.default['ceph']['is_mon'] = true
 
 directory '/var/run/ceph' do
   owner 'root'

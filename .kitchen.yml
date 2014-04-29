@@ -1,11 +1,16 @@
 ---
 driver_plugin: vagrant
 driver_config:
+  vagrantfile_erb: test/integration/Vagrantfile.erb
   require_chef_omnibus: true
 
 platforms:
 - name: ubuntu-10.04
+  run_list:
+    - recipe[apt]
 - name: ubuntu-12.04
+  run_list:
+    - recipe[apt]
 - name: centos-6.4
 - name: centos-5.9
 
@@ -39,3 +44,16 @@ suites:
   run_list:
     - "role[ceph-radosgw]"
   attributes: *defaults
+- name: aio
+  attributes:
+    ceph:
+      config-sections:
+        global:
+          "osd journal size" : 128
+          "osd pool default size": 1
+      osd_devices:
+        - { device: "/dev/sdb" }
+        - { device: "/dev/sdc" }
+        - { device: "/dev/sdd" }
+  run_list:
+    - recipe[ceph::all_in_one]

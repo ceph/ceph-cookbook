@@ -31,6 +31,7 @@
 #   }
 # ]
 
+include_recipe 'ceph::_common'
 include_recipe 'ceph::default'
 include_recipe 'ceph::conf'
 
@@ -44,15 +45,6 @@ package 'cryptsetup' do
 end
 
 service_type = node['ceph']['osd']['init_style']
-# Look for monitors with osd bootstrap keys.
-# If we're storing keys in encrypted data bags, then we'll have to trust the roles
-if use_cephx? && !node['ceph']['encrypted_data_bags']
-  mons = get_mon_nodes('ceph_bootstrap_osd_key:*')
-else
-  mons = get_mon_nodes
-end
-
-return 'No ceph-mon found.' if mons.empty?
 
 directory '/var/lib/ceph/bootstrap-osd' do
   owner 'root'
@@ -63,16 +55,10 @@ end
 # TODO: cluster name
 cluster = 'ceph'
 
-if node['ceph']['encrypted_data_bags']
-  secret = Chef::EncryptedDataBagItem.load_secret(node['ceph']['osd']['secret_file'])
-  osd_secret = Chef::EncryptedDataBagItem.load('ceph', 'osd', secret)['secret']
-else
-  osd_secret = mons[0]['ceph']['bootstrap_osd_key']
-end
-
 execute 'format as keyring' do
-  command "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{osd_secret}'"
+  command lazy { "ceph-authtool '/var/lib/ceph/bootstrap-osd/#{cluster}.keyring' --create-keyring --name=client.bootstrap-osd --add-key='#{osd_secret}'" }
   creates "/var/lib/ceph/bootstrap-osd/#{cluster}.keyring"
+  only_if { osd_secret }
 end
 
 if crowbar?

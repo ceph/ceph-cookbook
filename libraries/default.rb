@@ -5,7 +5,7 @@ def crowbar?
   !defined?(Chef::Recipe::Barclamp).nil?
 end
 
-def get_mon_nodes(extra_search = nil)
+def mon_nodes
   if crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     unless mon_roles.empty?
@@ -16,10 +16,19 @@ def get_mon_nodes(extra_search = nil)
     search_string = "ceph_is_mon:true AND chef_environment:#{node.chef_environment}"
   end
 
-  unless extra_search.nil?
-    search_string = "(#{search_string}) AND (#{extra_search})"
+  if use_cephx? && !node['ceph']['encrypted_data_bags']
+    search_string = "(#{search_string}) AND (ceph_bootstrap_osd_key:*)"
   end
   search(:node, search_string)
+end
+
+def osd_secret
+  if node['ceph']['encrypted_data_bags']
+    secret = Chef::EncryptedDataBagItem.load_secret(node['ceph']['osd']['secret_file'])
+    return Chef::EncryptedDataBagItem.load('ceph', 'osd', secret)['secret']
+  else
+    return mon_nodes[0]['ceph']['bootstrap_osd_key']
+  end
 end
 
 # If public_network is specified
@@ -70,7 +79,7 @@ def mon_addresses
     # primarily to local node
     mons << node if node['ceph']['is_mon']
 
-    mons += get_mon_nodes
+    mons += mon_nodes
     if crowbar?
       mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, 'admin').address }
     else
@@ -87,7 +96,7 @@ end
 def mon_secret
   # find the monitor secret
   mon_secret = ''
-  mons = get_mon_nodes
+  mons = mon_nodes
   if !mons.empty?
     mon_secret = mons[0]['ceph']['monitor-secret']
   elsif mons.empty? && node['ceph']['monitor-secret']
