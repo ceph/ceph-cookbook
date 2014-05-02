@@ -60,13 +60,6 @@ end
   end
 end
 
-file '/var/log/radosgw/radosgw.log' do
-  owner d_owner
-  group d_group
-  mode '0644'
-  action :create
-end
-
 include_recipe 'apache2'
 
 apache_module 'fastcgi' do
