@@ -29,7 +29,7 @@ directory '/var/run/ceph' do
   action :create
 end
 
-directory "/var/lib/ceph/mon/ceph-#{node["hostname"]}" do
+directory "/var/lib/ceph/mon/ceph-#{node['hostname']}" do
   owner 'root'
   group 'root'
   mode 00755
@@ -40,7 +40,7 @@ end
 # TODO: cluster name
 cluster = 'ceph'
 
-unless File.exist?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
+unless File.exist?("/var/lib/ceph/mon/ceph-#{node['hostname']}/done")
   keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
 
   if node['ceph']['encrypted_data_bags']
@@ -62,7 +62,7 @@ unless File.exist?("/var/lib/ceph/mon/ceph-#{node["hostname"]}/done")
   ruby_block 'finalise' do
     block do
       ['done', service_type].each do |ack|
-        ::File.open("/var/lib/ceph/mon/ceph-#{node["hostname"]}/#{ack}", 'w').close
+        ::File.open("/var/lib/ceph/mon/ceph-#{node['hostname']}/#{ack}", 'w').close
       end
     end
   end

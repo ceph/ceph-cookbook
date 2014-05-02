@@ -31,7 +31,7 @@ end
 def find_node_ip_in_network(network, nodeish = nil)
   nodeish = node unless nodeish
   net = IPAddr.new(network)
-  nodeish['network']['interfaces'].each do |iface, addrs|
+  nodeish['network']['interfaces'].each do |_iface, addrs|
     addresses = addrs['addresses'] || []
     addresses.each do |ip, params|
       return ip_address_to_ceph_address(ip, params) if ip_address_in_network?(ip, params, net)

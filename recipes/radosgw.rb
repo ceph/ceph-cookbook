@@ -47,7 +47,7 @@ include_recipe 'ceph::conf'
 
 if !::File.exist?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
   if node['ceph']['radosgw']['webserver_companion']
-    include_recipe "ceph::radosgw_#{node["ceph"]["radosgw"]["webserver_companion"]}"
+    include_recipe "ceph::radosgw_#{node['ceph']['radosgw']['webserver_companion']}"
   end
 
   ceph_client 'radosgw' do

@@ -76,7 +76,7 @@ execute 'format as keyring' do
 end
 
 if crowbar?
-  node['crowbar']['disks'].each do |disk, data|
+  node['crowbar']['disks'].each do |disk, _data|
     execute "ceph-disk-prepare #{disk}" do
       command "ceph-disk-prepare /dev/#{disk}"
       only_if { node['crowbar']['disks'][disk]['usage'] == 'Storage' }
