@@ -1,5 +1,4 @@
-Chef cookbook for deploying the Ceph storage system
-===================================================
+# Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbooks.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbooks)
 
 Note: "knife cookbook upload" needs this directory to be named "ceph".
 Please clone the repository as
@@ -10,8 +9,7 @@ Please clone the repository as
 itself)
 
 
-DESCRIPTION
-===========
+## DESCRIPTION
 
 Installs and configures Ceph, a distributed network storage and filesystem designed to provide excellent performance, reliability, and scalability.
 
@@ -25,18 +23,15 @@ Work in progress:
 * MDS
 * Other Distro (Debian, RHEL/CentOS, FC)
 
-REQUIREMENTS
-============
+## REQUIREMENTS
 
-Platform
---------
+### Platform
 
 Tested as working:
 
 * Ubuntu Precise (12.04)
 
-Cookbooks
----------
+### Cookbooks
 
 The ceph cookbook requires the following cookbooks from Opscode:
 
@@ -46,23 +41,17 @@ https://github.com/opscode/cookbooks
 * apache2
 
 
-ATTRIBUTES
-==========
+## ATTRIBUTES
 
-Ceph Rados Gateway
-------------------
+### Ceph Rados Gateway
 
 * node[:ceph][:radosgw][:api_fqdn]
 * node[:ceph][:radosgw][:admin_email]
 * node[:ceph][:radosgw][:rgw_addr]
 
-TEMPLATES
-=========
+## TEMPLATES
 
-
-
-USAGE
-=====
+## USAGE
 
 Ceph cluster design is beyond the scope of this README, please turn to the
 public wiki, mailing lists, visit our IRC channel, or contact Inktank:
@@ -72,8 +61,7 @@ http://ceph.com/resources/mailing-list-irc/
 http://www.inktank.com/
 
 
-Ceph Monitor
-------------
+### Ceph Monitor
 
 Ceph monitor nodes should use the ceph-mon role.
 
@@ -82,8 +70,7 @@ Includes:
 * ceph::default
 * ceph::conf
 
-Ceph Metadata Server
---------------------
+### Ceph Metadata Server
 
 Ceph metadata server nodes should use the ceph-mds role.
 
@@ -91,8 +78,7 @@ Includes:
 
 * ceph::default
 
-Ceph OSD
---------
+### Ceph OSD
 
 Ceph OSD nodes should use the ceph-osd role
 
@@ -101,14 +87,12 @@ Includes:
 * ceph::default
 * ceph::conf
 
-Ceph Rados Gateway
-------------------
+### Ceph Rados Gateway
 
 Ceph Rados Gateway nodes should use the ceph-radosgw role
 
 
-LICENSE AND AUTHORS
-===================
+## LICENSE AND AUTHORS
 
 * Author: Kyle Bader <kyle.bader@dreamhost.com>
 
