@@ -13,6 +13,7 @@ platforms:
     - recipe[apt]
 - name: centos-6.5
 - name: centos-5.10
+- name: fedora-18
 
 provisioner:
     name: chef_zero
