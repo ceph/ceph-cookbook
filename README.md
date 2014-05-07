@@ -25,6 +25,10 @@ Work in progress:
 
 ## REQUIREMENTS
 
+### Chef
+
+>= 11.6.0
+
 ### Platform
 
 Tested as working:
