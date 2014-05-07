@@ -19,16 +19,16 @@ when 'debian'
   default['ceph']['debian']['extras']['repository_key'] = 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc'
 when 'rhel'
   # Redhat/CentOS default repositories
-  default['ceph']['rhel']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/el6/noarch/ceph-release-1-0.el6.noarch.rpm"
-  default['ceph']['rhel']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/el6/x86_64/ceph-release-1-0.el6.noarch.rpm"
+  default['ceph']['rhel']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/el6/x86_64/"
+  default['ceph']['rhel']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/el6/x86_64/"
   default['ceph']['rhel']['dev']['repository'] = "http://gitbuilder.ceph.com/ceph-rpm-centos6-x86_64-basic/ref/#{node['ceph']['version']}/x86_64/"
   default['ceph']['rhel']['dev']['repository_key'] = 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc'
   default['ceph']['rhel']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/rpm/rhel6/x86_64/"
   default['ceph']['rhel']['extras']['repository_key'] = 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc'
 when 'fedora'
   # Fedora default repositories
-  default['ceph']['fedora']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/fc#{node['platform_version']}/x86_64/ceph-release-1-0.fc#{node['platform_version']}.noarch.rpm"
-  default['ceph']['fedora']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/fc#{node['platform_version']}/x86_64/ceph-release-1-0.fc#{node['platform_version']}.noarch.rpm"
+  default['ceph']['fedora']['stable']['repository'] = "#{node['ceph']['repo_url']}/rpm-#{node['ceph']['version']}/fc#{node['platform_version']}/x86_64/"
+  default['ceph']['fedora']['testing']['repository'] = "#{node['ceph']['repo_url']}/rpm-testing/fc#{node['platform_version']}/x86_64/"
   default['ceph']['fedora']['dev']['repository'] = "http://gitbuilder.ceph.com/ceph-rpm-fc#{node['platform_version']}-x86_64-basic/ref/#{node['ceph']['version']}/RPMS/x86_64/"
   default['ceph']['fedora']['dev']['repository_key'] = 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/autobuild.asc'
   default['ceph']['fedora']['extras']['repository'] = "#{node['ceph']['extras_repo_url']}/rpm/fedora#{node['platform_version']}/x86_64/"
