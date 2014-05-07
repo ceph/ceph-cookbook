@@ -20,3 +20,11 @@ yum_repository 'ceph-extra' do
   gpgkey node['ceph'][platform_family]['extras']['repository_key']
   only_if { node['ceph']['extras_repo'] }
 end
+
+package 'parted'    # needed by ceph-disk-prepare to run partprobe
+package 'hdparm'    # used by ceph-disk activate
+package 'xfsprogs'  # needed by ceph-disk-prepare to format as xfs
+package 'btrfs-progs' # needed to format as btrfs, in the future
+if node.platform_family == 'rhel' and node.platform_version.to_f < 7
+  package 'python-argparse'
+end
