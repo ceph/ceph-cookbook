@@ -25,6 +25,6 @@ package 'parted'    # needed by ceph-disk-prepare to run partprobe
 package 'hdparm'    # used by ceph-disk activate
 package 'xfsprogs'  # needed by ceph-disk-prepare to format as xfs
 package 'btrfs-progs' # needed to format as btrfs, in the future
-if node.platform_family == 'rhel' and node.platform_version.to_f < 7
+if node['platform_family'] == 'rhel' && node['platform_version'].to_f < 7
   package 'python-argparse'
 end
