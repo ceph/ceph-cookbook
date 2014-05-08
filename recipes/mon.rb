@@ -48,12 +48,27 @@ unless File.exist?("/var/lib/ceph/mon/ceph-#{node['hostname']}/done")
     secret = Chef::EncryptedDataBagItem.load_secret(node['ceph']['mon']['secret_file'])
     monitor_secret = Chef::EncryptedDataBagItem.load('ceph', 'mon', secret)['secret']
   else
-    monitor_secret = node['ceph']['monitor-secret']
+    monitor_secret = mon_secret   # try to find an existing secret
   end
 
-  execute 'format as keyring' do
-    command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{monitor_secret}' --cap mon 'allow *'"
-    creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  if monitor_secret && monitor_secret != ''
+    execute 'format mon-secret as keyring' do
+      command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{monitor_secret}' --cap mon 'allow *'"
+      creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+    end
+  else   # make a new monitor secret
+    execute 'generate mon-secret as keyring' do
+      command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --gen-key --cap mon 'allow *'"
+      creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+    end
+    ruby_block 'save monitor secret to node' do
+      block do
+        fetch = Mixlib::ShellOut.new("ceph-authtool '#{keyring}' --print-key --name=mon.")
+        fetch.run_command
+        key = fetch.stdout
+        node.set['ceph']['monitor-secret'] = key
+      end
+    end
   end
 
   execute 'ceph-mon mkfs' do
