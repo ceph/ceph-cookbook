@@ -5,14 +5,18 @@ driver_config:
   require_chef_omnibus: true
 
 platforms:
-- name: ubuntu-10.04
-  run_list:
-    - recipe[apt]
 - name: ubuntu-12.04
   run_list:
     - recipe[apt]
-- name: centos-6.4
-- name: centos-5.9
+- name: ubuntu-14.04
+  run_list:
+    - recipe[apt]
+- name: debian-7.4
+  run_list:
+    - recipe[apt]
+- name: centos-6.5
+- name: centos-5.10
+- name: fedora-18
 
 provisioner:
     name: chef_zero
