@@ -94,17 +94,17 @@ def mon_addresses
 end
 
 def mon_secret
-  # find the monitor secret
-  mon_secret = ''
-  mons = mon_nodes
-  if !mons.empty?
-    mon_secret = mons[0]['ceph']['monitor-secret']
-  elsif mons.empty? && node['ceph']['monitor-secret']
-    mon_secret = node['ceph']['monitor-secret']
+  if node['ceph']['encrypted_data_bags']
+    secret = Chef::EncryptedDataBagItem.load_secret(node['ceph']['mon']['secret_file'])
+    Chef::EncryptedDataBagItem.load('ceph', 'mon', secret)['secret']
+  elsif !mon_nodes.empty?
+    mon_nodes[0]['ceph']['monitor-secret']
+  elsif node['ceph']['monitor-secret']
+    node['ceph']['monitor-secret']
   else
-    Chef::Log.warn('No monitor secret found')
+    Chef::Log.info('No monitor secret found')
+    nil
   end
-  mon_secret
 end
 
 def quorum_members_ips
