@@ -41,6 +41,8 @@
 #   end
 # end
 
+directory "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}"
+
 include_recipe 'ceph::_common'
 include_recipe 'ceph::_common_install'
 include_recipe 'ceph::radosgw_apache2_repo'
