@@ -1,2 +1,6 @@
+include_recipe 'ceph::_common_install'
 
-include_recipe 'ceph::repo' if node['ceph']['install_repo']
+# Tools needed by cookbook
+node['ceph']['packages'].each do |pck|
+  package pck
+end

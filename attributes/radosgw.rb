@@ -17,15 +17,23 @@
 # limitations under the License.
 #
 
+include_attribute 'ceph'
+
 default['ceph']['radosgw']['api_fqdn'] = 'localhost'
 default['ceph']['radosgw']['admin_email'] = 'admin@example.com'
 default['ceph']['radosgw']['rgw_addr'] = '*:80'
 default['ceph']['radosgw']['rgw_port'] = false
 default['ceph']['radosgw']['webserver_companion'] = 'apache2' # can be false
 default['ceph']['radosgw']['use_apache_fork'] = true
-case node['platform']
-when 'ubuntu'
-  default['ceph']['radosgw']['init_style'] = 'upstart'
+default['ceph']['radosgw']['init_style'] = node['ceph']['init_style']
+
+case node['platform_family']
+when 'debian'
+  packages = ['radosgw']
+  packages += debug_packages(packages) if node['ceph']['install_debug']
+  default['ceph']['radosgw']['packages'] = packages
+when 'rhel', 'fedora', 'suse'
+  default['ceph']['radosgw']['packages'] = ['ceph-radosgw']
 else
-  default['ceph']['radosgw']['init_style'] = 'sysvinit'
+  default['ceph']['radosgw']['packages'] = []
 end

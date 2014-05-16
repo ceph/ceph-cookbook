@@ -19,30 +19,8 @@
 
 node.default['ceph']['is_radosgw'] = true
 
-case node['platform_family']
-when 'debian'
-  packages = %w(
-    radosgw
-  )
-
-  if node['ceph']['install_debug']
-    packages_dbg = %w(
-      radosgw-dbg
-    )
-    packages += packages_dbg
-  end
-when 'rhel', 'fedora', 'suse'
-  packages = %w(
-    ceph-radosgw
-  )
-end
-
-packages.each do |pkg|
-  package pkg do
-    action :upgrade
-  end
-end
-
+include_recipe 'ceph::_common'
+include_recipe 'ceph::radosgw_install'
 include_recipe 'ceph::conf'
 
 if !::File.exist?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
