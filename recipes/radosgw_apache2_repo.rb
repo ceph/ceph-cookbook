@@ -19,4 +19,3 @@ if node['ceph']['radosgw']['use_apache_fork'] == true
     Log.info("Ceph's Apache and Apache FastCGI forks not available for this distribution")
   end
 end
-
