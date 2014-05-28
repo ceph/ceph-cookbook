@@ -32,6 +32,10 @@ if !::File.exist?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
     caps('mon' => 'allow rw', 'osd' => 'allow rwx')
   end
 
+  directory "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}" do
+    recursive true
+  end
+
   file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
     action :create
   end
