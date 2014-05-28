@@ -1,6 +1,6 @@
 if node['ceph']['radosgw']['use_apache_fork'] == true
-  case node['lsb']['codename']
-  when 'precise', 'oneiric'
+  if node.platform_family?('debian') &&
+    %w(precise quantal raring saucy trusty squeeze wheezy).include?(node['lsb']['codename'])
     apt_repository 'ceph-apache2' do
       repo_name 'ceph-apache2'
       uri "http://gitbuilder.ceph.com/apache2-deb-#{node['lsb']['codename']}-x86_64-basic/ref/master"
