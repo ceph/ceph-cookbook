@@ -18,6 +18,7 @@
 # limitations under the License.
 
 include_recipe 'ceph::_common'
+include_recipe 'ceph::cephfs_install'
 include_recipe 'ceph::conf'
 
 name = 'cephfs'
