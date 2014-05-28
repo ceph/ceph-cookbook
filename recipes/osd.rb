@@ -32,7 +32,7 @@
 # ]
 
 include_recipe 'ceph::_common'
-include_recipe 'ceph::default'
+include_recipe 'ceph::osd_install'
 include_recipe 'ceph::conf'
 
 package 'gdisk' do
