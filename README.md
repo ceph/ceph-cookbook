@@ -1,13 +1,4 @@
-# Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbook.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbook)
-
-Note: "knife cookbook upload" needs this directory to be named "ceph".
-Please clone the repository as
-
-  git clone https://github.com/ceph/ceph-cookbook.git ceph
-
-(we cannot name this repository ceph.git, as that is the main project
-itself)
-
+# Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbook.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbook) [![Gitter chat](https://badges.gitter.im/ceph/ceph-cookbook.png)](https://gitter.im/ceph/ceph-cookbook)
 
 ## DESCRIPTION
 
@@ -17,11 +8,7 @@ The current version is focused towards deploying Monitors and OSD on Ubuntu.
 
 For documentation on how to use this cookbook, refer to the [USAGE](#USAGE) section.
 
-Work in progress:
-
-* RadosGW
-* MDS
-* Other Distro (Debian, RHEL/CentOS, FC)
+For help, use [Gitter chat](https://gitter.im/ceph/ceph-cookbook), [mailing-list](mailto:ceph-users-join@lists.ceph.com) or [issues](https://github.com/ceph/ceph-cookbook/issues)
 
 ## REQUIREMENTS
 
