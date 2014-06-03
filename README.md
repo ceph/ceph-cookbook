@@ -1,9 +1,9 @@
-# Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbooks.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbooks)
+# Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbook.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbook)
 
 Note: "knife cookbook upload" needs this directory to be named "ceph".
 Please clone the repository as
 
-  git clone https://github.com/ceph/ceph-cookbooks.git ceph
+  git clone https://github.com/ceph/ceph-cookbook.git ceph
 
 (we cannot name this repository ceph.git, as that is the main project
 itself)
