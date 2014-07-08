@@ -17,30 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'ceph::_common'
-include_recipe 'ceph::cephfs_install'
-include_recipe 'ceph::conf'
-
-name = 'cephfs'
-client_name = "cephfs.#{node['hostname']}"
-filename = "/etc/ceph/ceph.client.#{client_name}.secret"
-
-ceph_client name do
-  filename filename
-  caps('mon' => 'allow r', 'osd' => 'allow rw', 'mds' => 'allow')
-  as_keyring false
-end
-
-mons = mon_addresses.join(',') + ':/'
-
-directory node['ceph']['cephfs_mount']
-
-mount node['ceph']['cephfs_mount'] do
-  fstype 'ceph'
-  device mons
-  options "_netdev,name=#{client_name},secretfile=#{filename}"
-  dump 0
-  pass 0
+ceph_cephfs '/ceph' do
+  use_fuse false
   action [:mount, :enable]
-  not_if { mons.empty? }
 end
