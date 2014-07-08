@@ -31,19 +31,21 @@ def osd_secret
   end
 end
 
-# If public_network is specified
-# we need to search for the monitor IP
-# in the node environment.
-# 1. We look if the network is IPv6 or IPv4
-# 2. We look for a route matching the network
-# 3. We grab the IP and return it with the port
+# If public_network is specified with one or more networks, we need to
+# search for a matching monitor IP in the node environment.
+# 1. For each public network specified:
+#    a. We look if the network is IPv6 or IPv4
+#    b. We look for a route matching the network
+#    c. If we found match, we return the IP with the port
 def find_node_ip_in_network(network, nodeish = nil)
   nodeish = node unless nodeish
-  net = IPAddr.new(network)
-  nodeish['network']['interfaces'].each do |_iface, addrs|
-    addresses = addrs['addresses'] || []
-    addresses.each do |ip, params|
-      return ip_address_to_ceph_address(ip, params) if ip_address_in_network?(ip, params, net)
+  network.split(/\s*,\s*/).each do |n|
+    net = IPAddr.new(n)
+    nodeish['network']['interfaces'].each do |_iface, addrs|
+      addresses = addrs['addresses'] || []
+      addresses.each do |ip, params|
+        return ip_address_to_ceph_address(ip, params) if ip_address_in_network?(ip, params, net)
+      end
     end
   end
   nil
