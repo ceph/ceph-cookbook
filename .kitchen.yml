@@ -61,3 +61,4 @@ suites:
         - { device: "/dev/sdd" }
   run_list:
     - recipe[ceph::all_in_one]
+    - recipe[ceph_test::cephfs]
