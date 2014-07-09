@@ -5,7 +5,7 @@ def crowbar?
   !defined?(Chef::Recipe::Barclamp).nil?
 end
 
-def mon_nodes
+def mon_env_search_string
   if crowbar?
     mon_roles = search(:role, 'name:crowbar-* AND run_list:role\[ceph-mon\]')
     unless mon_roles.empty?
@@ -13,8 +13,22 @@ def mon_nodes
       search_string = "(#{search_string}) AND ceph_config_environment:#{node['ceph']['config']['environment']}"
     end
   else
-    search_string = "ceph_is_mon:true AND chef_environment:#{node.chef_environment}"
+    search_string = 'ceph_is_mon:true'
+    if node['ceph']['search_environment'].is_a?(String)
+      # search for nodes with this particular env
+      search_string += " AND chef_environment:#{node['ceph']['search_environment']}"
+    elsif node['ceph']['search_environment']
+      # search for any nodes with this environment
+      search_string += " AND chef_environment:#{node.chef_environment}"
+    else
+      # search for any mon nodes
+    end
   end
+  search_string
+end
+
+def mon_nodes
+  search_string = mon_env_search_string
 
   if use_cephx? && !node['ceph']['encrypted_data_bags']
     search_string = "(#{search_string}) AND (ceph_bootstrap_osd_key:*)"
