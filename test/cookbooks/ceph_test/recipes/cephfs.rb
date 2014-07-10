@@ -1,6 +1,6 @@
 #
 # Author:: Kyle Bader <kyle.bader@dreamhost.com>
-# Cookbook Name:: ceph
+# Cookbook Name:: ceph_test
 # Recipe:: cephfs
 #
 # Copyright 2011, DreamHost Web Hosting
@@ -34,4 +34,20 @@ end
 ceph_cephfs '/ceph' do
   use_fuse requires_fuse
   action [:mount, :enable]
+end
+ceph_cephfs '/ceph.fuse' do
+  use_fuse true
+  action [:mount]
+end
+directory '/ceph/subdir'
+file '/ceph/subdir/file' do
+  content "It works\n"
+end
+
+unless requires_fuse
+  ceph_cephfs '/subceph' do
+    use_fuse false
+    cephfs_subdir '/subdir'
+    action [:mount]
+  end
 end
