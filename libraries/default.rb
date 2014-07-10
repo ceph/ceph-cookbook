@@ -1,4 +1,3 @@
-require 'ipaddr'
 require 'json'
 
 def crowbar?
@@ -52,9 +51,10 @@ end
 #    b. We look for a route matching the network
 #    c. If we found match, we return the IP with the port
 def find_node_ip_in_network(network, nodeish = nil)
+  require 'netaddr'
   nodeish = node unless nodeish
   network.split(/\s*,\s*/).each do |n|
-    net = IPAddr.new(n)
+    net = NetAddr::CIDR.create(n)
     nodeish['network']['interfaces'].each do |_iface, addrs|
       addresses = addrs['addresses'] || []
       addresses.each do |ip, params|
@@ -66,20 +66,33 @@ def find_node_ip_in_network(network, nodeish = nil)
 end
 
 def ip_address_in_network?(ip, params, net)
-  if params['family'] == 'inet'
-    net.include?(ip) && params.key?('broadcast')     # is primary ip on iface
-  elsif params['family'] == 'inet6'
-    net.include?(ip)
+  # Find the IP on this interface that matches the public_network
+  # Uses a few heuristics to find the primary IP that ceph would bind to
+  # Most secondary IPs never have a broadcast value set
+  # Other secondary IPs have a prefix of /32
+  # Match the prefix that we want from the public_network prefix
+  if params['family'] == 'inet' && net.version == 4
+    ip4_address_in_network?(ip, params, net)
+  elsif params['family'] == 'inet6' && net.version == 6
+    ip6_address_in_network?(ip, params, net)
   else
     false
   end
 end
 
+def ip4_address_in_network?(ip, params, net)
+  net.contains?(ip) && params.key?('broadcast') && params['prefixlen'].to_i == net.bits
+end
+
+def ip6_address_in_network?(ip, params, net)
+  net.contains?(ip) && params['prefixlen'].to_i == net.bits
+end
+
 def ip_address_to_ceph_address(ip, params)
-  if params['family'].eql?('inet6')
-    return "[#{ip}]:6789"
-  elsif params['family'].eql?('inet')
+  if params['family'].eql?('inet')
     return "#{ip}:6789"
+  elsif params['family'].eql?('inet6')
+    return "[#{ip}]:6789"
   end
 end
 
