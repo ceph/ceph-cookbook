@@ -31,7 +31,7 @@ requires_fuse =
     true
 end
 
-ceph_cephfs '/ceph' do
+ceph_cephfs node['ceph']['cephfs_mount'] do
   use_fuse requires_fuse
   action [:mount, :enable]
 end

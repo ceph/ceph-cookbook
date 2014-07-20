@@ -1,3 +1,7 @@
+@test "/recipe_ceph is mounted" {
+  grep -q -E '^\S+\s+/recipe_ceph\s+' /proc/mounts
+}
+
 @test "/ceph is mounted" {
   grep -q -E '^\S+\s+/ceph\s+' /proc/mounts
 }
