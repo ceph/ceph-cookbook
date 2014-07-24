@@ -1,7 +1,9 @@
 [global]
+<% unless node['ceph']['config']['fsid'].nil? -%>
+  fsid = <%= node['ceph']['config']['fsid'] %>
+<% end -%>
 <% if node['ceph']['is_mon'] -%>
-  fsid = <%= node["ceph"]["config"]["fsid"] %>
-  mon initial members = <%= node["ceph"]["config"]["mon_initial_members"] %>
+  mon initial members = <%= node['ceph']['config']['mon_initial_members'] %>
 <% end -%>
   mon host = <%= @mon_addresses.sort.join(', ') %>
 <% if (! node['ceph']['config']['global'].nil?) -%>
