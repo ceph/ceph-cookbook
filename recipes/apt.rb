@@ -9,6 +9,12 @@ when 'jessie' then 'sid'
 else node['lsb']['codename']
 end
 
+apt_preference 'ceph_repo' do
+  package_name '*'
+  pin 'origin "ceph.com"'
+  pin_priority '1001'
+end
+
 apt_repository 'ceph' do
   repo_name 'ceph'
   uri node['ceph']['debian'][branch]['repository']
