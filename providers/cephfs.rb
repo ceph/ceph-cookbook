@@ -25,7 +25,7 @@ def manage_mount(directory, subdir, use_fuse, action)
       fstype 'fuse.ceph'
       # needs two slashes to indicate a network mount to chef
       device "conf=//etc/ceph/ceph.conf,id=#{client_name},keyfile=#{filename}"
-      options 'defaults'
+      options 'defaults,_netdev'
       dump 0
       pass 0
       action action

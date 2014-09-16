@@ -39,6 +39,10 @@ ceph_cephfs '/ceph.fuse' do
   use_fuse true
   action [:mount]
 end
+ceph_cephfs '/ceph.fstab' do
+  use_fuse true
+  action [:mount, :enable]
+end
 directory '/ceph/subdir'
 file '/ceph/subdir/file' do
   content "It works\n"
