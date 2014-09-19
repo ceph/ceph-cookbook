@@ -122,7 +122,7 @@ if use_cephx? && !node['ceph']['encrypted_data_bags']
         run_out = Mixlib::ShellOut.new('ceph auth get-key client.bootstrap-osd').run_command.stdout.strip
         sleep 2
       end
-      node.override['ceph']['bootstrap_osd_key'] = run_out
+      node.set['ceph']['bootstrap_osd_key'] = run_out
       node.save
     end
     not_if { node['ceph']['bootstrap_osd_key'] }
