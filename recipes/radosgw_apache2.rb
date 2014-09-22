@@ -53,10 +53,12 @@ include_recipe 'apache2'
 
 apache_module 'fastcgi' do
   conf true
+  notifies :restart, 'service[apache2]'
 end
 
 apache_module 'rewrite' do
   conf false
+  notifies :restart, 'service[apache2]'
 end
 
 web_app 'rgw' do
@@ -64,10 +66,6 @@ web_app 'rgw' do
   server_name node['ceph']['radosgw']['api_fqdn']
   admin_email node['ceph']['radosgw']['admin_email']
   ceph_rgw_addr node['ceph']['radosgw']['rgw_addr']
-end
-
-service 'apache2' do
-  action :restart
 end
 
 template '/var/www/s3gw.fcgi' do
