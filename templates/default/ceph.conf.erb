@@ -36,9 +36,11 @@
 <% if (@is_rgw) -%>
 [client.radosgw.<%= node['hostname'] %>]
   host = <%= node['hostname'] %>
-  rgw socket path = /var/run/ceph/radosgw.<%= node['hostname'] %>
+  rgw socket path = /var/run/ceph-radosgw/radosgw.<%= node['hostname'] %>
+  admin socket = /var/run/ceph-radosgw/ceph-client.radosgw.<%= node['hostname'] %>.asok
+  pid file = /var/run/ceph-radosgw/$name.pid
   keyring = /etc/ceph/ceph.client.radosgw.<%= node['hostname'] %>.keyring
-  log file = /var/log/ceph/radosgw.log
+  log file = /var/log/radosgw/radosgw.log
 <% if (! node['ceph']['config']['rgw'].nil?) -%>
   <% node['ceph']['config']['rgw'].sort.each do |k, v| %>
   <%= k %> = <%= v %>

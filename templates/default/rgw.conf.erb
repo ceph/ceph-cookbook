@@ -1,7 +1,7 @@
 <% if node['ceph']['radosgw']['rgw_port'] -%>
 FastCgiExternalServer <%= node['ceph']['radosgw']['path'] %>/s3gw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
 <% else -%>
-FastCgiExternalServer <%= node['ceph']['radosgw']['path'] %>/s3gw.fcgi -socket /var/run/ceph/radosgw.<%= node['hostname'] %>
+FastCgiExternalServer <%= node['ceph']['radosgw']['path'] %>/s3gw.fcgi -socket /var/run/ceph-radosgw/radosgw.<%= node['hostname'] %>
 <% end -%>
 
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Host}i\"" proxy_combined
