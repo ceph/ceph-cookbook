@@ -1,7 +1,7 @@
 <% if node['ceph']['radosgw']['rgw_port'] -%>
-FastCgiExternalServer /var/www/s3gw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
+FastCgiExternalServer <%= node['ceph']['radosgw']['path'] %>/s3gw.fcgi -host 127.0.0.1:<%= node['ceph']['radosgw']['rgw_port'] %>
 <% else -%>
-FastCgiExternalServer /var/www/s3gw.fcgi -socket /var/run/ceph/radosgw.<%= node['hostname'] %>
+FastCgiExternalServer <%= node['ceph']['radosgw']['path'] %>/s3gw.fcgi -socket /var/run/ceph/radosgw.<%= node['hostname'] %>
 <% end -%>
 
 LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{Host}i\"" proxy_combined
@@ -15,13 +15,13 @@ LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{Use
 <%   end -%>
 <% end -%>
   ServerAdmin <%= node["ceph"]["radosgw"]["admin_email"] %>
-  DocumentRoot /var/www/
+  DocumentRoot <%= node['ceph']['radosgw']['path'] %>
 
   RewriteEngine On
   RewriteRule ^/([a-zA-Z0-9-_.]*)([/]?.*) /s3gw.fcgi?page=$1&params=$2&%{QUERY_STRING} [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
 
   <IfModule mod_fastcgi.c>
-    <Directory /var/www/>
+    <Directory <%= node['ceph']['radosgw']['path'] %>>
       Options +ExecCGI
       AllowOverride All
       SetHandler fastcgi-script

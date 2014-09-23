@@ -68,7 +68,14 @@ web_app 'rgw' do
   ceph_rgw_addr node['ceph']['radosgw']['rgw_addr']
 end
 
-template '/var/www/s3gw.fcgi' do
+directory node['ceph']['radosgw']['path'] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+template "#{node['ceph']['radosgw']['path']}/s3gw.fcgi" do
   source 's3gw.fcgi.erb'
   owner 'root'
   group 'root'
@@ -76,4 +83,12 @@ template '/var/www/s3gw.fcgi' do
   variables(
     :ceph_rgw_client => "client.radosgw.#{node['hostname']}"
   )
+end
+
+if node['platform_family'] == 'suse'
+  bash 'Set MPM apache value' do
+    code 'sed -i s/^[[:space:]]*APACHE_MPM=.*/APACHE_MPM=\"worker\"/ /etc/sysconfig/apache2'
+    not_if 'grep -q "^[[:space:]]*APACHE_MPM=\"worker\"" /etc/sysconfig/apache2'
+    notifies :restart, 'service[apache2]'
+  end
 end
