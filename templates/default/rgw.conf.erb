@@ -25,9 +25,13 @@ LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{Use
       Options +ExecCGI
       AllowOverride All
       SetHandler fastcgi-script
+      AuthBasicAuthoritative Off
+      <%- if node[:apache][:version].to_f < 2.4 %>
       Order allow,deny
       Allow from all
-      AuthBasicAuthoritative Off
+      <%- else %>
+      Require all granted
+      <%- end %>
     </Directory>
   </IfModule>
 
