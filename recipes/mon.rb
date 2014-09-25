@@ -71,14 +71,12 @@ execute 'ceph-mon mkfs' do
   command "ceph-mon --mkfs -i #{node['hostname']} --keyring '#{keyring}'"
 end
 
-# needed only by https://github.com/ceph/ceph/blob/master/src/upstart/ceph-mon-all-starter.conf
 ruby_block 'finalise' do
   block do
     ['done', service_type].each do |ack|
       ::File.open("/var/lib/ceph/mon/ceph-#{node['hostname']}/#{ack}", 'w').close
     end
   end
-  only_if { node['platform'] == 'ubuntu' }
 end
 
 if service_type == 'upstart'
