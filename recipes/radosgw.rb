@@ -42,42 +42,41 @@ directory '/var/run/ceph-radosgw' do
   action :create
 end
 
-if !::File.exist?("/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done")
-  if node['ceph']['radosgw']['webserver_companion']
-    include_recipe "ceph::radosgw_#{node['ceph']['radosgw']['webserver_companion']}"
-  end
+if node['ceph']['radosgw']['webserver_companion']
+  include_recipe "ceph::radosgw_#{node['ceph']['radosgw']['webserver_companion']}"
+end
 
-  ceph_client 'radosgw' do
-    caps('mon' => 'allow rw', 'osd' => 'allow rwx')
-    owner 'root'
-    group node['apache']['group']
-    mode 0640
-  end
+ceph_client 'radosgw' do
+  caps('mon' => 'allow rw', 'osd' => 'allow rwx')
+  owner 'root'
+  group node['apache']['group']
+  mode 0640
+end
 
-  directory "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}" do
-    recursive true
-  end
+directory "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}" do
+  recursive true
+  only_if { node['platform'] == 'ubuntu' }
+end
 
-  file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
-    action :create
-  end
+# needed by https://github.com/ceph/ceph/blob/master/src/upstart/radosgw-all-starter.conf
+file "/var/lib/ceph/radosgw/ceph-radosgw.#{node['hostname']}/done" do
+  action :create
+  only_if { node['platform'] == 'ubuntu' }
+end
 
-  service 'radosgw' do
-    case node['ceph']['radosgw']['init_style']
-    when 'upstart'
-      service_name 'radosgw-all-starter'
-      provider Chef::Provider::Service::Upstart
+service 'radosgw' do
+  case node['ceph']['radosgw']['init_style']
+  when 'upstart'
+    service_name 'radosgw-all-starter'
+    provider Chef::Provider::Service::Upstart
+  else
+    if node['platform'] == 'debian'
+      service_name 'radosgw'
     else
-      if node['platform'] == 'debian'
-        service_name 'radosgw'
-      else
-        service_name 'ceph-radosgw'
-      end
+      service_name 'ceph-radosgw'
     end
-    supports :restart => true
-    action [:enable, :start]
-    subscribes :restart, 'template[/etc/ceph/ceph.conf]'
   end
-else
-  Log.info('Rados Gateway already deployed')
+  supports :restart => true
+  action [:enable, :start]
+  subscribes :restart, 'template[/etc/ceph/ceph.conf]'
 end

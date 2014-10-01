@@ -41,42 +41,40 @@ end
 # TODO: cluster name
 cluster = 'ceph'
 
-unless File.exist?("/var/lib/ceph/mon/ceph-#{node['hostname']}/done")
-  keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
 
-  execute 'format mon-secret as keyring' do
-    command lazy { "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{mon_secret}' --cap mon 'allow *'" }
-    creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
-    only_if { mon_secret }
+execute 'format mon-secret as keyring' do
+  command lazy { "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{mon_secret}' --cap mon 'allow *'" }
+  creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  only_if { mon_secret }
+end
+
+execute 'generate mon-secret as keyring' do
+  command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --gen-key --cap mon 'allow *'"
+  creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  not_if { mon_secret }
+  notifies :create, 'ruby_block[save mon_secret]', :immediately
+end
+
+ruby_block 'save mon_secret' do
+  block do
+    fetch = Mixlib::ShellOut.new("ceph-authtool '#{keyring}' --print-key --name=mon.")
+    fetch.run_command
+    key = fetch.stdout
+    node.set['ceph']['monitor-secret'] = key
+    node.save
   end
+  action :nothing
+end
 
-  execute 'generate mon-secret as keyring' do
-    command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --gen-key --cap mon 'allow *'"
-    creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
-    not_if { mon_secret }
-    notifies :create, 'ruby_block[save mon_secret]', :immediately
-  end
+execute 'ceph-mon mkfs' do
+  command "ceph-mon --mkfs -i #{node['hostname']} --keyring '#{keyring}'"
+end
 
-  ruby_block 'save mon_secret' do
-    block do
-      fetch = Mixlib::ShellOut.new("ceph-authtool '#{keyring}' --print-key --name=mon.")
-      fetch.run_command
-      key = fetch.stdout
-      node.set['ceph']['monitor-secret'] = key
-      node.save
-    end
-    action :nothing
-  end
-
-  execute 'ceph-mon mkfs' do
-    command "ceph-mon --mkfs -i #{node['hostname']} --keyring '#{keyring}'"
-  end
-
-  ruby_block 'finalise' do
-    block do
-      ['done', service_type].each do |ack|
-        ::File.open("/var/lib/ceph/mon/ceph-#{node['hostname']}/#{ack}", 'w').close
-      end
+ruby_block 'finalise' do
+  block do
+    ['done', service_type].each do |ack|
+      ::File.open("/var/lib/ceph/mon/ceph-#{node['hostname']}/#{ack}", 'w').close
     end
   end
 end
