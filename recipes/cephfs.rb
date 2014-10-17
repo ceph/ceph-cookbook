@@ -17,21 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-requires_fuse =
-  case node['platform']
-  when 'debian'
-    node['platform_version'].to_f < 7.0
-  when 'ubuntu'
-    node['platform_version'].to_f < 12.04
-  when 'redhat'
-    node['platform_version'].to_f < 7.0
-  when 'fedora'
-    node['platform_version'].to_f < 17.0
-  else
-    true
-end
-
 ceph_cephfs node['ceph']['cephfs_mount'] do
-  use_fuse requires_fuse
+  use_fuse node['ceph']['cephfs_use_fuse'] || cephfs_requires_fuse
   action [:mount, :enable]
 end

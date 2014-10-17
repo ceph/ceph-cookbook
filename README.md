@@ -118,6 +118,7 @@ Ceph Rados Gateway nodes should use the ceph-radosgw role
 
 * node['ceph']['config']['mds'] - a hash of settings to save in ceph.conf in the [mds] section, such as `'mds cache size' => '100000'`
 * node['ceph']['cephfs_mount'] - where the cephfs recipe should mount CephFS
+* node['ceph']['cephfs_use_fuse'] - whether the cephfs recipe should use the fuse cephfs client. It will default to heuristics based on the kernel version
 
 ### Ceph Rados Gateway
 

@@ -7,7 +7,7 @@
 }
 
 @test "cephfs is mounted" {
-  mount | grep 'type ceph'
+  mount | grep -E 'type (fuse\.)?ceph'
 }
 
 @test "radosgw is running" {
