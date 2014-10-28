@@ -169,6 +169,28 @@ The ceph\_cephfs LWRP provides an easy way to mount CephFS. It will automaticall
 - :use\_fuse - whether to use ceph-fuse or the kernel client to mount the filesystem. ceph-fuse is updated more often, but the kernel client allows for subdirectory mounting. Defaults to true
 - :cephfs\_subdir - which CephFS subdirectory to mount. Defaults to '/'. An exception will be thrown if this option is set to anything other than '/' if use\_fuse is also true
 
+## DEVELOPING
+
+### Style Guide
+
+This cookbook requires a style guide for all contributions. Travis will automatically verify that every Pull Request follows the style guide.
+
+1. Install [ChefDK](http://downloads.getchef.com/chef-dk/)
+2. Activate ChefDK's copy of ruby: `eval "$(chef shell-init bash)"`
+3. `bundle install`
+4. `bundle exec rake style`
+
+### Testing
+
+This cookbook uses Test Kitchen to verify functionality. A Pull Request can't be merged if it causes any of the test configurations to fail.
+
+1. Install [ChefDK](http://downloads.getchef.com/chef-dk/)
+2. Activate ChefDK's copy of ruby: `eval "$(chef shell-init bash)"`
+3. `bundle install`
+4. `bundle exec kitchen test aio-debian-74`
+5. `bundle exec kitchen test aio-ubuntu-1204`
+6. `bundle exec kitchen test aio-ubuntu-1404`
+
 ## LICENSE AND AUTHORS
 
 * Author: Kyle Bader <kyle.bader@dreamhost.com>
