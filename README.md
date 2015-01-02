@@ -26,12 +26,12 @@ Tested as working:
 
 ### Cookbooks
 
-The ceph cookbook requires the following cookbooks from Opscode:
+The ceph cookbook requires the following cookbooks from Chef:
 
-https://github.com/opscode/cookbooks
+https://supermarket.chef.io/
 
-* apt
-* apache2
+* [apt](https://supermarket.chef.io/cookbooks/apt)
+* [apache2](https://supermarket.chef.io/cookbooks/apache2)
 
 ## TEMPLATES
 
@@ -46,14 +46,14 @@ http://www.inktank.com/
 
 This cookbook can be used to implement a chosen cluster design. Most of the configuration is retrieved from node attributes, which can be set by an environment or by a wrapper cookbook. A basic cluster configuration will need most of the following attributes:
 
-* node['ceph']['config']['fsid'] - the cluster UUID
-* node['ceph']['config]'['global']['public network'] - a CIDR specification of the public network
-* node['ceph']['config]'['global']['cluster network'] - a CIDR specification of a separate cluster replication network
-* node['ceph']['config]'['global']['rgw dns name'] -  the main domain of the radosgw daemon
+* `node['ceph']['config']['fsid']` - the cluster UUID
+* `node['ceph']['config]'['global']['public network']` - a CIDR specification of the public network
+* `node['ceph']['config]'['global']['cluster network']` - a CIDR specification of a separate cluster replication network
+* `node['ceph']['config]'['global']['rgw dns name']` -  the main domain of the radosgw daemon
 
 Most notably, the configuration does _NOT_ need to set the `mon_initial_members`, because the cookbook does a node search to find other mons in the same environment.
 
-The other set of attributes that this recipe needs is node['ceph']['osd_devices'], which is an array of OSD definitions, similar to the following:
+The other set of attributes that this recipe needs is `node['ceph']['osd_devices']`, which is an array of OSD definitions, similar to the following:
 
 * {'device' => '/dev/sdb'} - Use a full disk for the OSD, with a small partition for the journal
 * {'type' => 'directory', 'device' => '/src/node/sdb1/ceph'} - Use a directory, and have a small file for the journal
@@ -94,41 +94,41 @@ Ceph Rados Gateway nodes should use the ceph-radosgw role
 
 ### General
 
-* node['ceph']['search_environment'] - a custom Chef environment to search when looking for mon nodes. The cookbook defaults to searching the current environment
-* node['ceph']['branch'] - selects whether to install the stable, testing, or dev version of Ceph
-* node['ceph']['version'] - install a version of Ceph that is different than the cookbook default. If this is changed in a wrapper cookbook, some repository urls may also need to be replaced, and they are found in attributes/repo.rb. If the branch attribute is set to dev, this selects the gitbuilder branch to install
-* node['ceph']['extras_repo'] - whether to install the ceph extras repo. The tgt recipe requires this
+* `node['ceph']['search_environment']` - a custom Chef environment to search when looking for mon nodes. The cookbook defaults to searching the current environment
+* `node['ceph']['branch']` - selects whether to install the stable, testing, or dev version of Ceph
+* `node['ceph']['version']` - install a version of Ceph that is different than the cookbook default. If this is changed in a wrapper cookbook, some repository urls may also need to be replaced, and they are found in attributes/repo.rb. If the branch attribute is set to dev, this selects the gitbuilder branch to install
+* `node['ceph']['extras_repo']` - whether to install the ceph extras repo. The tgt recipe requires this
 
-* node['ceph']['config']['fsid'] - the cluster UUID
-* node['ceph']['config']['global']['public network'] - a CIDR specification of the public network
-* node['ceph']['config']['global']['cluster network'] - a CIDR specification of a separate cluster replication network
-* node['ceph']['config']['config-sections'] - add to this hash to add extra config sections to the ceph.conf
+* `node['ceph']['config']['fsid']` - the cluster UUID
+* `node['ceph']['config']['global']['public network']` - a CIDR specification of the public network
+* `node['ceph']['config']['global']['cluster network']` - a CIDR specification of a separate cluster replication network
+* `node['ceph']['config']['config-sections']` - add to this hash to add extra config sections to the ceph.conf
 
 ### Ceph MON
 
-* node['ceph']['config']['mon'] - a hash of settings to save in ceph.conf in the [mon] section, such as `'mon osd nearfull ratio' => '0.70'`
+* `node['ceph']['config']['mon']` - a hash of settings to save in ceph.conf in the [mon] section, such as `'mon osd nearfull ratio' => '0.70'`
 
 ### Ceph OSD
 
-* node['ceph']['osd_devices'] - an array of OSD definitions for the current node
-* node['ceph']['config']['osd'] - a hash of settings to save in ceph.conf in the [osd] section, such as `'osd max backfills' => 2`
-* node['ceph']['config']['osd']['osd crush location'] - this attribute can be set on a per-node basis to maintain Crush map locations
+* `node['ceph']['osd_devices']` - an array of OSD definitions for the current node
+* `node['ceph']['config']['osd']` - a hash of settings to save in ceph.conf in the [osd] section, such as `'osd max backfills' => 2`
+* `node['ceph']['config']['osd']['osd crush location']` - this attribute can be set on a per-node basis to maintain Crush map locations
 
 ### Ceph MDS
 
-* node['ceph']['config']['mds'] - a hash of settings to save in ceph.conf in the [mds] section, such as `'mds cache size' => '100000'`
-* node['ceph']['cephfs_mount'] - where the cephfs recipe should mount CephFS
-* node['ceph']['cephfs_use_fuse'] - whether the cephfs recipe should use the fuse cephfs client. It will default to heuristics based on the kernel version
+* `node['ceph']['config']['mds']` - a hash of settings to save in ceph.conf in the [mds] section, such as `'mds cache size' => '100000'`
+* `node['ceph']['cephfs_mount']` - where the cephfs recipe should mount CephFS
+* `node['ceph']['cephfs_use_fuse']` - whether the cephfs recipe should use the fuse cephfs client. It will default to heuristics based on the kernel version
 
 ### Ceph Rados Gateway
 
-* node['ceph']['radosgw']['api_fqdn'] - what vhost to configure in the web server
-* node['ceph']['radosgw']['admin_email'] - the admin email address to configure in the web server
-* node['ceph']['radosgw']['rgw_addr'] - the web server's bind address, such as *:80
-* node['ceph']['radosgw']['rgw_port'] - if set, connects to the radosgw fastcgi over this port instead of a unix socket
-* node['ceph']['radosgw']['webserver_companion'] - defaults to 'apache2', but can be set to false to not configure anything
-* node['ceph']['radosgw']['path'] - where to save the s3gw.fcgi file
-* node['ceph']['config']['global']['rgw dns name'] -  the main domain of the radosgw daemon, to calculate the bucket name from a subdomain
+* `node['ceph']['radosgw']['api_fqdn']` - what vhost to configure in the web server
+* `node['ceph']['radosgw']['admin_email']` - the admin email address to configure in the web server
+* `node['ceph']['radosgw']['rgw_addr']` - the web server's bind address, such as *:80
+* `node['ceph']['radosgw']['rgw_port']` - if set, connects to the radosgw fastcgi over this port instead of a unix socket
+* `node['ceph']['radosgw']['webserver_companion']` - defaults to 'apache2', but can be set to false to not configure anything
+* `node['ceph']['radosgw']['path']` - where to save the s3gw.fcgi file
+* `node['ceph']['config']['global']['rgw dns name']` -  the main domain of the radosgw daemon, to calculate the bucket name from a subdomain
 
 ## Resources/Providers
 
@@ -175,7 +175,7 @@ The ceph\_cephfs LWRP provides an easy way to mount CephFS. It will automaticall
 
 This cookbook requires a style guide for all contributions. Travis will automatically verify that every Pull Request follows the style guide.
 
-1. Install [ChefDK](http://downloads.getchef.com/chef-dk/)
+1. Install [ChefDK](http://downloads.chef.io/chef-dk/)
 2. Activate ChefDK's copy of ruby: `eval "$(chef shell-init bash)"`
 3. `bundle install`
 4. `bundle exec rake style`
@@ -184,7 +184,7 @@ This cookbook requires a style guide for all contributions. Travis will automati
 
 This cookbook uses Test Kitchen to verify functionality. A Pull Request can't be merged if it causes any of the test configurations to fail.
 
-1. Install [ChefDK](http://downloads.getchef.com/chef-dk/)
+1. Install [ChefDK](http://downloads.chef.io/chef-dk/)
 2. Activate ChefDK's copy of ruby: `eval "$(chef shell-init bash)"`
 3. `bundle install`
 4. `bundle exec kitchen test aio-debian-74`
