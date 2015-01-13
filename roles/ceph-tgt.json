@@ -1,5 +1,6 @@
 {
   "name": "ceph-tgt",
+  "json_class": "Chef::Role",
   "description": "Ceph iSCSI Target",
   "run_list": [
     "recipe[ceph::repo]",

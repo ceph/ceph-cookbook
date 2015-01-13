@@ -1,5 +1,6 @@
 {
   "name": "ceph-mds",
+  "json_class": "Chef::Role",
   "description": "Ceph Metadata Server",
   "run_list": [
     "recipe[ceph::repo]",

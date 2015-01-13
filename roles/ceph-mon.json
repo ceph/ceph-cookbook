@@ -1,5 +1,6 @@
 {
   "name": "ceph-mon",
+  "json_class": "Chef::Role",
   "description": "Ceph Monitor",
   "run_list": [
     "recipe[ceph::repo]",
