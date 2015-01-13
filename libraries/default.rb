@@ -149,7 +149,6 @@ def quorum_members_ips
   mon_ips
 end
 
-QUORUM_STATES = %w(leader, peon)
 def quorum?
   # "ceph auth get-or-create-key" would hang if the monitor wasn't
   # in quorum yet, which is highly likely on the first run. This
@@ -160,13 +159,14 @@ def quorum?
   # in the ceph tool, this exits immediately if the ceph-mon is not
   # running for any reason; trying to connect via TCP/IP would wait
   # for a relatively long timeout.
+  quorum_states = %w(leader, peon)
 
   cmd = Mixlib::ShellOut.new("ceph --admin-daemon /var/run/ceph/ceph-mon.#{node['hostname']}.asok mon_status")
   cmd.run_command
   cmd.error!
 
   state = JSON.parse(cmd.stdout)['state']
-  QUORUM_STATES.include?(state)
+  quorum_states.include?(state)
 end
 
 # Cephx is on by default, but users can disable it.
