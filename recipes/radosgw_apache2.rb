@@ -41,8 +41,7 @@
 #   end
 # end
 
-include_recipe 'ceph::_common'
-include_recipe 'ceph::_common_install'
+include_recipe 'ceph'
 include_recipe 'ceph::radosgw_apache2_repo'
 
 node['ceph']['radosgw']['apache2']['packages'].each do |pck|

@@ -19,9 +19,8 @@
 
 node.default['ceph']['is_radosgw'] = true
 
-include_recipe 'ceph::_common'
+include_recipe 'ceph'
 include_recipe 'ceph::radosgw_install'
-include_recipe 'ceph::conf'
 
 directory '/var/log/radosgw' do
   owner node['apache']['user']
