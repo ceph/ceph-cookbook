@@ -31,7 +31,7 @@ def manage_mount(directory, subdir, use_fuse, action)
       action action
     end
   else
-    mons = mon_addresses.join(',') + ':' + subdir
+    mons = mon_addresses.sort.join(',') + ':' + subdir
     mount "#{action} #{directory}" do
       mount_point directory
       fstype 'ceph'
