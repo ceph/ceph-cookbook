@@ -67,7 +67,6 @@ Ceph monitor nodes should use the ceph-mon role.
 Includes:
 
 * ceph::default
-* ceph::conf
 
 ### Ceph Metadata Server
 
@@ -84,7 +83,6 @@ Ceph OSD nodes should use the ceph-osd role
 Includes:
 
 * ceph::default
-* ceph::conf
 
 ### Ceph Rados Gateway
 

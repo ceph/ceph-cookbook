@@ -1,4 +1,4 @@
-include_recipe 'ceph::_common_install'
+include_recipe 'ceph'
 
 node['ceph']['mon']['packages'].each do |pck|
   package pck

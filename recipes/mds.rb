@@ -17,9 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'ceph::_common'
+include_recipe 'ceph'
 include_recipe 'ceph::mds_install'
-include_recipe 'ceph::conf'
 
 cluster = 'ceph'
 

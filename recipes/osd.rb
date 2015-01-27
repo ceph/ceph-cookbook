@@ -31,9 +31,8 @@
 #   }
 # ]
 
-include_recipe 'ceph::_common'
+include_recipe 'ceph'
 include_recipe 'ceph::osd_install'
-include_recipe 'ceph::conf'
 
 package 'gdisk' do
   action :upgrade
