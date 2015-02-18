@@ -1,5 +1,6 @@
 {
   "name": "ceph-radosgw",
+  "json_class": "Chef::Role",
   "description": "Ceph RADOS Gateway",
   "run_list": [
     "recipe[ceph::repo]",
