@@ -10,7 +10,7 @@ else node['lsb']['codename']
 end
 
 apt_preference 'ceph_repo' do
-  package_name '*'
+  glob '*'
   pin 'origin "ceph.com"'
   pin_priority '1001'
 end
