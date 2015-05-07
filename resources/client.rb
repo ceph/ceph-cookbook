@@ -11,6 +11,9 @@ attribute :as_keyring, :kind_of => [TrueClass, FalseClass], :default => true
 # defaults to client.#{name}.#{hostname}
 attribute :keyname, :kind_of => String
 
+# The actual key (a random key will be generated if not provided)
+attribute :key, :kind_of => String, :default => nil
+
 # where the key should be saved
 # defaults to /etc/ceph/ceph.client.#{name}.#{hostname}.keyring if as_keyring
 # defaults to /etc/ceph/ceph.client.#{name}.#{hostname}.secret if not as_keyring
@@ -21,4 +24,4 @@ attribute :owner, :kind_of => String, :default => 'root'
 attribute :group, :kind_of => String, :default => 'root'
 attribute :mode, :kind_of => [Integer, String], :default => '00640'
 
-attr_accessor :key, :caps_match
+attr_accessor :exists, :caps_match, :keys_match
