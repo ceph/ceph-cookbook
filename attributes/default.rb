@@ -3,6 +3,8 @@ default['ceph']['encrypted_data_bags'] = false
 
 default['ceph']['install_repo'] = true
 
+default['ceph']['user_pools'] = []
+
 case node['platform']
 when 'ubuntu'
   default['ceph']['init_style'] = 'upstart'

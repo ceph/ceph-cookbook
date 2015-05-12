@@ -102,6 +102,8 @@ Ceph Rados Gateway nodes should use the ceph-radosgw role
 * `node['ceph']['config']['global']['cluster network']` - a CIDR specification of a separate cluster replication network
 * `node['ceph']['config']['config-sections']` - add to this hash to add extra config sections to the ceph.conf
 
+* `node['ceph']['user_pools']` - an array of pool definitions, with attributes `name`, `pg_num` and `create_options` (optional), that are automatically created when a monitor is deployed
+
 ### Ceph MON
 
 * `node['ceph']['config']['mon']` - a hash of settings to save in ceph.conf in the [mon] section, such as `'mon osd nearfull ratio' => '0.70'`
@@ -166,6 +168,24 @@ The ceph\_cephfs LWRP provides an easy way to mount CephFS. It will automaticall
 - :directory - name attribute. Where to mount CephFS in the local filesystem
 - :use\_fuse - whether to use ceph-fuse or the kernel client to mount the filesystem. ceph-fuse is updated more often, but the kernel client allows for subdirectory mounting. Defaults to true
 - :cephfs\_subdir - which CephFS subdirectory to mount. Defaults to '/'. An exception will be thrown if this option is set to anything other than '/' if use\_fuse is also true
+
+### ceph\_pool
+
+The ceph\_pool LWRP provides an easy way to create and delete Ceph pools.
+
+It assumes that connectivity to the cluster is setup and that admin credentials are available from default locations, e.g. /etc/ceph/ceph.client.admin.keyring.
+
+#### Actions
+
+- :add - creates a pool with the given number of placement groups
+- :delete - deletes an existing pool
+
+#### Parameters
+
+- :name - the name of the pool to create or delete
+- :pg_num - number of placement groups, when creating a new pool
+- :create_options - arguments for pool creation (optional)
+- :force - force the deletion of an exiting pool along with any data that is stored in it
 
 ## DEVELOPING
 
