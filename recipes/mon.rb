@@ -44,15 +44,20 @@ keyring = "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.
 
 execute 'format mon-secret as keyring' do
   command lazy { "ceph-authtool '#{keyring}' --create-keyring --name=mon. --add-key='#{mon_secret}' --cap mon 'allow *'" }
-  creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  creates keyring
   only_if { mon_secret }
 end
 
 execute 'generate mon-secret as keyring' do
   command "ceph-authtool '#{keyring}' --create-keyring --name=mon. --gen-key --cap mon 'allow *'"
-  creates "#{Chef::Config[:file_cache_path]}/#{cluster}-#{node['hostname']}.mon.keyring"
+  creates keyring
   not_if { mon_secret }
   notifies :create, 'ruby_block[save mon_secret]', :immediately
+end
+
+execute 'add bootstrap-osd key to keyring' do
+  command lazy { "ceph-authtool '#{keyring}' --name=client.bootstrap-osd --add-key='#{osd_secret}' --cap mon 'allow profile bootstrap-osd'  --cap osd 'allow profile bootstrap-osd'" }
+  only_if { osd_secret }
 end
 
 ruby_block 'save mon_secret' do
