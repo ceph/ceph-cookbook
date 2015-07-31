@@ -35,6 +35,13 @@
 
 <% if (@is_rgw) -%>
 [client.radosgw.<%= node['hostname'] %>]
+<% if node['ceph']['radosgw']['webserver_companion'] == 'civetweb' -%>
+  <% if node['ceph']['radosgw']['rgw_port'] == false %>
+  rgw frontends = "civetweb port=80"
+<% else -%>
+  rgw frontends = "civetweb port=<%=node['ceph']['radosgw']['rgw_port']%>"
+<% end -%>
+<% end -%>
   host = <%= node['hostname'] %>
   rgw socket path = /var/run/ceph-radosgw/radosgw.<%= node['hostname'] %>
   admin socket = /var/run/ceph-radosgw/ceph-client.radosgw.<%= node['hostname'] %>.asok

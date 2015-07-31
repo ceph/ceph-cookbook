@@ -126,7 +126,7 @@ Ceph Rados Gateway nodes should use the ceph-radosgw role
 * `node['ceph']['radosgw']['admin_email']` - the admin email address to configure in the web server
 * `node['ceph']['radosgw']['rgw_addr']` - the web server's bind address, such as *:80
 * `node['ceph']['radosgw']['rgw_port']` - if set, connects to the radosgw fastcgi over this port instead of a unix socket
-* `node['ceph']['radosgw']['webserver_companion']` - defaults to 'apache2', but can be set to false to not configure anything
+* `node['ceph']['radosgw']['webserver_companion']` - defaults to 'apache2', but it can be set to 'civetweb', or to false in order to leave it unconfigured
 * `node['ceph']['radosgw']['path']` - where to save the s3gw.fcgi file
 * `node['ceph']['config']['global']['rgw dns name']` -  the main domain of the radosgw daemon, to calculate the bucket name from a subdomain
 
