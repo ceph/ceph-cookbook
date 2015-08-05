@@ -130,13 +130,3 @@ execute 'add bootstrap-osd key to keyring' do
   command lazy { "ceph-authtool '#{keyring}' --name=client.bootstrap-osd --add-key='#{osd_secret}' --cap mon 'allow profile bootstrap-osd'  --cap osd 'allow profile bootstrap-osd'" }
   only_if { osd_secret }
 end
-
-if node['ceph']['user_pools']
-  # Create user-defined pools
-  node['ceph']['user_pools'].each do |pool|
-    ceph_pool pool['name'] do
-      pg_num pool['pg_num']
-      create_options pool['create_options'] if pool['create_options']
-    end
-  end
-end
