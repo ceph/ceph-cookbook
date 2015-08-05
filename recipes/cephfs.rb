@@ -18,6 +18,6 @@
 # limitations under the License.
 
 ceph_cephfs node['ceph']['cephfs_mount'] do
-  use_fuse node['ceph']['cephfs_use_fuse'] || cephfs_requires_fuse
+  use_fuse node['ceph']['cephfs_use_fuse'].nil? ? cephfs_requires_fuse : node['ceph']['cephfs_use_fuse']
   action [:mount, :enable]
 end
