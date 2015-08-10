@@ -55,6 +55,11 @@ execute 'generate mon-secret as keyring' do
   notifies :create, 'ruby_block[save mon_secret]', :immediately
 end
 
+execute 'add bootstrap-osd key to keyring' do
+  command lazy { "ceph-authtool '#{keyring}' --name=client.bootstrap-osd --add-key='#{osd_secret}' --cap mon 'allow profile bootstrap-osd'  --cap osd 'allow profile bootstrap-osd'" }
+  only_if { node['ceph']['encrypted_data_bags'] && osd_secret }
+end
+
 ruby_block 'save mon_secret' do
   block do
     fetch = Mixlib::ShellOut.new("ceph-authtool '#{keyring}' --print-key --name=mon.")
@@ -124,9 +129,4 @@ if use_cephx? && !node['ceph']['encrypted_data_bags']
     end
     not_if { node['ceph']['bootstrap_osd_key'] }
   end
-end
-
-execute 'add bootstrap-osd key to keyring' do
-  command lazy { "ceph-authtool '#{keyring}' --name=client.bootstrap-osd --add-key='#{osd_secret}' --cap mon 'allow profile bootstrap-osd'  --cap osd 'allow profile bootstrap-osd'" }
-  only_if { osd_secret }
 end
