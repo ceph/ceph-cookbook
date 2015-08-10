@@ -33,12 +33,12 @@ action :add do
   key = @new_resource.key || get_key(keyname)
 
   # update the key in the file
-  file filename do
+  file filename do # ~FC009
     content file_content(keyname, key, as_keyring)
     owner owner
     group group
     mode mode
-    # sensitive true if Chef::Resource::File.method_defined? :sensitive # ~FC009
+    sensitive true if Chef::Resource::File.method_defined? :sensitive
   end
 
 end
@@ -112,8 +112,8 @@ def create_entity(keyname)
   Chef::Log.debug "Client #{keyname} created"
 
   # remove temporary keyring file
-  file tmp_keyring do
+  file tmp_keyring do # ~FC009
     action :delete
-    # sensitive true if Chef::Resource::File.method_defined? :sensitive # ~FC009
+    sensitive true if Chef::Resource::File.method_defined? :sensitive
   end
 end
