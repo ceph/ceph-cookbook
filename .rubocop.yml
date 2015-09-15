@@ -6,7 +6,7 @@ AllCops:
     - Thorfile
     - Guardfile
   Exclude:
-    - vendor/**
+    - vendor/**/*
 
 ClassLength:
   Enabled: false
