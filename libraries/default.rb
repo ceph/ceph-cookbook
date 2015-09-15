@@ -19,7 +19,6 @@ def mon_env_search_string
     elsif node['ceph']['search_environment']
       # search for any nodes with this environment
       search_string += " AND chef_environment:#{node.chef_environment}"
-    else
       # search for any mon nodes
     end
   end
@@ -121,7 +120,7 @@ def mon_addresses
       end
     end
   end
-  mon_ips.reject { |m| m.nil? }.uniq
+  mon_ips.reject(&:nil?).uniq
 end
 
 def mon_secret
