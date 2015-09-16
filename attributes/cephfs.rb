@@ -1,5 +1,5 @@
 default['ceph']['cephfs_mount'] = '/ceph'
-default['ceph']['cephfs_use_fuse'] = nil  # whether the recipe's fuse mount uses cephfs-fuse instead of kernel client, defaults to heuristics
+default['ceph']['cephfs_use_fuse'] = nil # whether the recipe's fuse mount uses cephfs-fuse instead of kernel client, defaults to heuristics
 
 case node['platform_family']
 when 'debian'

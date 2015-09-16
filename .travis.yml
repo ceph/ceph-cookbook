@@ -1,9 +1,10 @@
 language: ruby
 sudo: false
 cache: bundler
+bundler_args: --without kitchen_common kitchen_vagrant
 rvm:
-  - 1.9.3
-  - 2.0.0
-bundler_args: --without integration
+  - 2.0
+  - 2.1
+  - 2.2
 script:
   - bundle exec rake travis

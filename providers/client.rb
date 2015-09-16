@@ -14,17 +14,17 @@ action :add do
 
   if @current_resource.exists
     if @current_resource.keys_match && @current_resource.caps_match
-      Chef::Log.info "Client #{ @new_resource } already exists and matches "\
+      Chef::Log.info "Client #{@new_resource} already exists and matches "\
                      'specifications - nothing to do.'
     else
-      converge_by("Recreating client #{ @new_resource } as existing doesn't "\
+      converge_by("Recreating client #{@new_resource} as existing doesn't "\
                   'match specifications') do
         delete_entity(keyname)
         create_entity(keyname)
       end
     end
   else
-    converge_by("Creating client #{ @new_resource }") do
+    converge_by("Creating client #{@new_resource}") do
       create_entity(keyname)
     end
   end
@@ -40,7 +40,6 @@ action :add do
     mode mode
     sensitive true if Chef::Resource::File.method_defined? :sensitive
   end
-
 end
 
 def load_current_resource

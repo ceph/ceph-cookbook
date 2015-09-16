@@ -13,9 +13,9 @@ use_inline_resources
 
 action :create do
   if @current_resource.exists
-    Chef::Log.info "#{ @new_resource } already exists - nothing to do."
+    Chef::Log.info "#{@new_resource} already exists - nothing to do."
   else
-    converge_by("Creating #{ @new_resource }") do
+    converge_by("Creating #{@new_resource}") do
       create_pool
     end
   end
@@ -23,11 +23,11 @@ end
 
 action :delete do
   if @current_resource.exists
-    converge_by("Deleting #{ @new_resource }") do
+    converge_by("Deleting #{@new_resource}") do
       delete_pool
     end
   else
-    Chef::Log.info "#{ @current_resource } does not exist - nothing to do."
+    Chef::Log.info "#{@current_resource} does not exist - nothing to do."
   end
 end
 
@@ -43,7 +43,7 @@ def create_pool
   cmd = Mixlib::ShellOut.new(cmd_text)
   cmd.run_command
   cmd.error!
-  Chef::Log.debug "Pool created: #{ cmd.stderr }"
+  Chef::Log.debug "Pool created: #{cmd.stderr}"
 end
 
 def delete_pool
@@ -53,16 +53,16 @@ def delete_pool
   cmd = Mixlib::ShellOut.new(cmd_text)
   cmd.run_command
   cmd.error!
-  Chef::Log.debug "Pool deleted: #{ cmd.stderr }"
+  Chef::Log.debug "Pool deleted: #{cmd.stderr}"
 end
 
 def pool_exists?(name)
   cmd = Mixlib::ShellOut.new("ceph osd pool get #{name} size")
   cmd.run_command
   cmd.error!
-  Chef::Log.debug "Pool exists: #{ cmd.stdout }"
+  Chef::Log.debug "Pool exists: #{cmd.stdout}"
   true
 rescue
-  Chef::Log.debug "Pool doesn't seem to exist: #{ cmd.stderr }"
+  Chef::Log.debug "Pool doesn't seem to exist: #{cmd.stderr}"
   false
 end
