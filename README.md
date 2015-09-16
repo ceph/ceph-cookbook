@@ -1,6 +1,4 @@
 # Chef cookbook [![Build Status](https://travis-ci.org/ceph/ceph-cookbook.svg?branch=master)](https://travis-ci.org/ceph/ceph-cookbook) [![Gitter chat](https://badges.gitter.im/ceph/ceph-cookbook.png)](https://gitter.im/ceph/ceph-cookbook)
-## Important
-The current version 0.8.0 will soon be archived and a new version on the master branch will appear that supports Chef 12+.
 
 ## DESCRIPTION
 
