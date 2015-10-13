@@ -5,6 +5,6 @@
   "run_list": [
     "recipe[ceph::repo]",
     "recipe[ceph::mon]",
-    "recipe[ceph:pools]
+    "recipe[ceph::pools]"
   ]
 }
