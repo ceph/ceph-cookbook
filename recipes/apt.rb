@@ -4,10 +4,10 @@ include_recipe 'apt'
 branch = node['ceph']['branch']
 
 distribution_codename =
-case node['lsb']['codename']
-when 'jessie' then 'sid'
-else node['lsb']['codename']
-end
+  case node['lsb']['codename']
+  when 'jessie' then 'sid'
+  else node['lsb']['codename']
+  end
 
 apt_preference 'ceph_repo' do
   glob '*'

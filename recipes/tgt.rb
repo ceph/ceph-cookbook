@@ -42,10 +42,8 @@ service 'tgt' do
   if node['platform'] == 'ubuntu'
     # The ceph version of tgt does not provide an Upstart script
     provider Chef::Provider::Service::Init::Debian
-    service_name 'tgt'
-  else
-    service_name 'tgt'
   end
+  service_name 'tgt'
   supports :restart => true
   action [:enable, :start]
 end

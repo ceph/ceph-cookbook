@@ -91,10 +91,11 @@ end
 
 def ip_address_to_ceph_address(ip, params)
   if params['family'].eql?('inet')
-    return "#{ip}:6789"
+    "#{ip}:6789"
   elsif params['family'].eql?('inet6')
-    return "[#{ip}]:6789"
+    "[#{ip}]:6789"
   end
+  nil
 end
 
 def mon_addresses
@@ -110,15 +111,13 @@ def mon_addresses
     mons << node if node['ceph']['is_mon']
 
     mons += mon_nodes
-    if crowbar?
-      mon_ips = mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, 'admin').address }
-    else
-      if node['ceph']['config']['global'] && node['ceph']['config']['global']['public network']
-        mon_ips = mons.map { |nodeish| find_node_ip_in_network(node['ceph']['config']['global']['public network'], nodeish) }
-      else
-        mon_ips = mons.map { |node| node['ipaddress'] + ':6789' }
-      end
-    end
+    mon_ips = if crowbar?
+                mons.map { |node| Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, 'admin').address }
+              elsif node['ceph']['config']['global'] && node['ceph']['config']['global']['public network']
+                mons.map { |nodeish| find_node_ip_in_network(node['ceph']['config']['global']['public network'], nodeish) }
+              else
+                mons.map { |node| node['ipaddress'] + ':6789' }
+              end
   end
   mon_ips.reject(&:nil?).uniq
 end

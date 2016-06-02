@@ -53,7 +53,7 @@ def load_current_resource
   @current_resource.key(get_key(@current_resource.keyname))
   @current_resource.caps_match = @current_resource.caps == @new_resource.caps
   @current_resource.keys_match = @new_resource.key.nil? || (@current_resource.key == @new_resource.key)
-  @current_resource.exists = ! (@current_resource.key.nil? || @current_resource.key.empty?)
+  @current_resource.exists = !(@current_resource.key.nil? || @current_resource.key.empty?)
 end
 
 def file_content(keyname, key, as_keyring)

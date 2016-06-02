@@ -81,7 +81,7 @@ if crowbar?
     command 'udevadm trigger --subsystem-match=block --action=add'
     action :nothing
   end
-else
+
   # Calling ceph-disk-prepare is sufficient for deploying an OSD
   # After ceph-disk-prepare finishes, the new device will be caught
   # by udev which will run ceph-disk-activate on it (udev will map
@@ -91,60 +91,59 @@ else
   # osd/$cluster-$id)
   #  - $cluster should always be ceph
   #  - The --dmcrypt option will be available starting w/ Cuttlefish
-  if node['ceph']['osd_devices']
-    devices = node['ceph']['osd_devices']
+elsif node['ceph']['osd_devices']
+  devices = node['ceph']['osd_devices']
 
-    devices = Hash[(0...devices.size).zip devices] unless devices.is_a? Hash
+  devices = Hash[(0...devices.size).zip devices] unless devices.is_a? Hash
 
-    devices.each do |index, osd_device|
-      unless osd_device['status'].nil?
-        Log.info("osd: osd_device #{osd_device} has already been setup.")
-        next
-      end
-
-      directory osd_device['device'] do # ~FC022
-        owner 'root'
-        group 'root'
-        recursive true
-        only_if { osd_device['type'] == 'directory' }
-      end
-
-      dmcrypt = osd_device['encrypted'] == true ? '--dmcrypt' : ''
-
-      execute "ceph-disk-prepare on #{osd_device['device']}" do
-        command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
-        action :run
-        notifies :create, "ruby_block[save osd_device status #{index}]", :immediately
-      end
-
-      execute "ceph-disk-activate #{osd_device['device']}" do
-        only_if { osd_device['type'] == 'directory' }
-      end
-
-      # we add this status to the node env
-      # so that we can implement recreate
-      # and/or delete functionalities in the
-      # future.
-      ruby_block "save osd_device status #{index}" do
-        block do
-          node.normal['ceph']['osd_devices'][index]['status'] = 'deployed'
-          node.save
-        end
-        action :nothing
-      end
+  devices.each do |index, osd_device|
+    unless osd_device['status'].nil?
+      Log.info("osd: osd_device #{osd_device} has already been setup.")
+      next
     end
-    service 'ceph_osd' do
-      case service_type
-      when 'upstart'
-        service_name 'ceph-osd-all-starter'
-        provider Chef::Provider::Service::Upstart
-      else
-        service_name 'ceph'
-      end
-      action [:enable, :start]
-      supports :restart => true
+
+    directory osd_device['device'] do # ~FC022
+      owner 'root'
+      group 'root'
+      recursive true
+      only_if { osd_device['type'] == 'directory' }
     end
-  else
-    Log.info('node["ceph"]["osd_devices"] empty')
+
+    dmcrypt = osd_device['encrypted'] == true ? '--dmcrypt' : ''
+
+    execute "ceph-disk-prepare on #{osd_device['device']}" do
+      command "ceph-disk-prepare #{dmcrypt} #{osd_device['device']} #{osd_device['journal']}"
+      action :run
+      notifies :create, "ruby_block[save osd_device status #{index}]", :immediately
+    end
+
+    execute "ceph-disk-activate #{osd_device['device']}" do
+      only_if { osd_device['type'] == 'directory' }
+    end
+
+    # we add this status to the node env
+    # so that we can implement recreate
+    # and/or delete functionalities in the
+    # future.
+    ruby_block "save osd_device status #{index}" do
+      block do
+        node.normal['ceph']['osd_devices'][index]['status'] = 'deployed'
+        node.save
+      end
+      action :nothing
+    end
   end
+  service 'ceph_osd' do
+    case service_type
+    when 'upstart'
+      service_name 'ceph-osd-all-starter'
+      provider Chef::Provider::Service::Upstart
+    else
+      service_name 'ceph'
+    end
+    action [:enable, :start]
+    supports :restart => true
+  end
+else
+  Log.info('node["ceph"]["osd_devices"] empty')
 end

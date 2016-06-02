@@ -22,11 +22,11 @@ MethodLength:
   Enabled: false
 SignalException:
   Enabled: false
-TrailingComma:
-  Enabled: false
 WordArray:
   Enabled: false
 Metrics/AbcSize:
   Enabled: false
 Metrics/PerceivedComplexity:
+  Enabled: false
+ConditionalAssignment:
   Enabled: false
